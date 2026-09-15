@@ -34,10 +34,46 @@ export default function QuickAddModal({
 
   // Fuel State
   const [fuelOdo, setFuelOdo] = useState(currentOdo || 65010);
-  const [fuelLiters, setFuelLiters] = useState('40.0');
+  const [fuelUnitPrice, setFuelUnitPrice] = useState(22500); // Đơn giá VNĐ/Lít (RON 95-III)
   const [fuelCost, setFuelCost] = useState('900000');
+  const [fuelLiters, setFuelLiters] = useState('40.00');
   const [isFullTank, setIsFullTank] = useState(true);
   const [gasStation, setGasStation] = useState('Petrolimex');
+
+  // Handle Fuel Cost Change -> Auto Calculate Liters
+  const handleFuelCostChange = (costVal) => {
+    setFuelCost(costVal);
+    const numCost = Number(costVal);
+    const numPrice = Number(fuelUnitPrice);
+    if (numCost > 0 && numPrice > 0) {
+      setFuelLiters((numCost / numPrice).toFixed(2));
+    }
+  };
+
+  // Handle Fuel Liters Change -> Auto Calculate Cost
+  const handleFuelLitersChange = (litersVal) => {
+    setFuelLiters(litersVal);
+    const numLiters = Number(litersVal);
+    const numPrice = Number(fuelUnitPrice);
+    if (numLiters > 0 && numPrice > 0) {
+      setFuelCost(Math.round(numLiters * numPrice).toString());
+    }
+  };
+
+  // Handle Unit Price Change -> Recalculate Liters from Cost
+  const handleUnitPriceChange = (priceVal) => {
+    setFuelUnitPrice(priceVal);
+    const numPrice = Number(priceVal);
+    const numCost = Number(fuelCost);
+    if (numCost > 0 && numPrice > 0) {
+      setFuelLiters((numCost / numPrice).toFixed(2));
+    }
+  };
+
+  // Quick Amount Select (e.g. 500k, 800k, 900k...)
+  const selectQuickFuelAmount = (amount) => {
+    handleFuelCostChange(amount.toString());
+  };
 
   // Service State
   const [serviceOdo, setServiceOdo] = useState(currentOdo || 65010);
@@ -352,6 +388,7 @@ export default function QuickAddModal({
           {/* 1. FUEL FORM */}
           {activeMode === 'fuel' && (
             <form onSubmit={handleFuelSubmit} className="space-y-4">
+              {/* ODO & Đơn giá xăng */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-300 block mb-1">Số ODO hiện tại (km)</label>
@@ -364,27 +401,76 @@ export default function QuickAddModal({
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Số Lít đã đổ</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Đơn giá xăng (VNĐ/Lít)</label>
                   <input
                     type="number"
-                    step="0.01"
-                    value={fuelLiters}
-                    onChange={(e) => setFuelLiters(e.target.value)}
+                    value={fuelUnitPrice}
+                    onChange={(e) => handleUnitPriceChange(e.target.value)}
                     required
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 font-mono font-bold focus:outline-none focus:border-cyan-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 font-mono font-bold focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Tổng tiền thanh toán (VNĐ)</label>
+              {/* Tổng tiền thanh toán (Tự tính số Lít) */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-semibold text-slate-300">Tổng tiền thanh toán (VNĐ)</label>
+                  <span className="text-[11px] text-slate-400">
+                    Quy đổi: <strong className="text-cyan-300 font-mono font-bold">{fuelLiters} Lít</strong>
+                  </span>
+                </div>
+
                 <input
                   type="number"
                   value={fuelCost}
-                  onChange={(e) => setFuelCost(e.target.value)}
+                  onChange={(e) => handleFuelCostChange(e.target.value)}
+                  placeholder="Ví dụ: 850000, 900000..."
                   required
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono text-lg font-bold focus:outline-none focus:border-cyan-500"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono text-xl font-bold focus:outline-none focus:border-cyan-500"
                 />
+
+                {/* Các nút bấm nhanh số tiền phổ biến */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[10px] text-slate-400 font-medium mr-0.5">Chọn nhanh:</span>
+                  {[500000, 700000, 800000, 850000, 900000, 1000000, 1100000].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => selectQuickFuelAmount(amt)}
+                      className={`text-[11px] font-mono px-2 py-1 rounded-lg border transition-all ${
+                        Number(fuelCost) === amt
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500 font-bold'
+                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-700'
+                      }`}
+                    >
+                      {(amt / 1000).toLocaleString('vi-VN')}k
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Số Lít & Công thức live */}
+              <div className="p-3 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-1">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Số Lít thực nhận:</span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={fuelLiters}
+                      onChange={(e) => handleFuelLitersChange(e.target.value)}
+                      className="w-20 px-2 py-0.5 bg-slate-900 border border-slate-700 rounded text-right font-mono text-xs text-slate-100 font-bold"
+                    />
+                    <span className="text-slate-400 font-bold">Lít</span>
+                  </div>
+                </div>
+                <div className="text-[11px] text-slate-500 flex justify-between">
+                  <span>Công thức:</span>
+                  <span className="font-mono text-slate-400">
+                    {Number(fuelCost || 0).toLocaleString('vi-VN')} đ ÷ {Number(fuelUnitPrice || 0).toLocaleString('vi-VN')} đ/L = <strong className="text-emerald-400">{fuelLiters} L</strong>
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

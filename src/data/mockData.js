@@ -12,11 +12,14 @@ export const INITIAL_VEHICLE = {
   id: 'e1a47a11-2289-4860-9889-000000000001',
   make: 'Hyundai',
   model: 'Elantra',
-  year: 2023,
-  trim: '2.0 AT',
+  year: 2022,
+  trim: '2.0 AT (Xăng)',
   license_plate: '60K-228.98',
-  vin: 'MALB141CBP0022898',
-  current_odo: 65010,
+  vin: 'RLULL41BBNT000481', // Số khung từ phiếu Hãng
+  engine_no: 'G4FGNU243843', // Số máy từ phiếu Hãng
+  reg_date: '2022-11-29', // Ngày ĐKBH từ phiếu Hãng
+  owner_name: 'Phạm Quốc Tuấn',
+  current_odo: 65023,
   fuel_capacity: 47.0, // Lít
   fuel_type: 'RON 95-III',
   photo_url: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80',
