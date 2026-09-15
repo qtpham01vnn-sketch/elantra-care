@@ -101,9 +101,17 @@ export default function App() {
     setIsQuickAddOpen(true);
   };
 
-  // Calculate Alerts Count
+  // Calculate Alerts Count (Phụ Tùng Bảo Dưỡng + Hạn Bảo Hiểm & Đăng Kiểm)
   const evaluatedReminders = (reminders || []).map(r => calculateReminderStatus(r, vehicle.current_odo));
-  const activeAlertsCount = evaluatedReminders.filter(r => r.status === 'OVERDUE' || r.status === 'DUE_SOON').length;
+  const maintenanceAlertsCount = evaluatedReminders.filter(r => r.status === 'OVERDUE' || r.status === 'DUE_SOON').length;
+
+  const legalAlertsCount = (INITIAL_LEGAL_DOCUMENTS || []).filter(doc => {
+    if (!doc.expiry_date) return false;
+    const days = Math.ceil((new Date(doc.expiry_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+    return days <= (doc.alert_days || 30);
+  }).length;
+
+  const activeAlertsCount = maintenanceAlertsCount + legalAlertsCount;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
