@@ -223,12 +223,19 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
             }
             if (reg) {
               await reg.showNotification("🚗 Hyundai Elantra 60K-228.98", {
-                body: "✅ Test thành công! Bạn sẽ nhận được thông báo khi đến hạn Bảo hiểm, Đăng kiểm & Thay nhớt.",
+                body: "✅ Nhắc nhở: Sắp đến hạn kiểm tra Dầu nhớt (65k km) & Bảo hiểm TNDS! Chạm để xem.",
                 icon: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=192&q=80",
                 badge: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=96&q=80",
-                vibrate: [200, 100, 200],
+                vibrate: [300, 150, 300, 150, 400],
                 tag: 'elantra-test-alert',
-                requireInteraction: true
+                renotify: true,
+                requireInteraction: true,
+                data: {
+                  url: window.location.href
+                },
+                actions: [
+                  { action: 'open', title: '🚗 Mở Sổ Bảo Dưỡng' }
+                ]
               });
               sentViaSW = true;
             }
