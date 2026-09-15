@@ -28,3 +28,21 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(71, 85, 105, 1);
 }
+
+/* Professional Print Styles for A4 Digital Logbook */
+@media print {
+  html, body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+  
+  header, footer, nav, button, .print\:hidden {
+    display: none !important;
+  }
+  
+  @page {
+    size: A4 portrait;
+    margin: 12mm 12mm 15mm 12mm;
+  }
+}

@@ -4,8 +4,8 @@ import {
   INITIAL_FUEL_LOGS, 
   INITIAL_EXPENSE_LOGS, 
   INITIAL_REMINDERS 
-} from '../data/mockData';
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+} from '../data/mockData.js';
+import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 
 const STORAGE_KEYS = {
   VEHICLE: 'elantra_app_vehicle_v2',
@@ -13,6 +13,25 @@ const STORAGE_KEYS = {
   FUEL_LOGS: 'elantra_app_fuel_v2',
   EXPENSES: 'elantra_app_expenses_v2',
   REMINDERS: 'elantra_app_reminders_v2',
+};
+
+const safeGetStorage = (key) => {
+  if (typeof localStorage !== 'undefined') {
+    return localStorage.getItem(key);
+  }
+  return null;
+};
+
+const safeSetStorage = (key, value) => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(key, value);
+  }
+};
+
+const safeRemoveStorage = (key) => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem(key);
+  }
 };
 
 // Helper format tiền tệ VNĐ
@@ -23,6 +42,79 @@ export const formatCurrency = (amount) => {
 // Helper format số km
 export const formatKm = (km) => {
   return new Intl.NumberFormat('vi-VN').format(km || 0) + ' km';
+};
+
+// Helper so khớp phụ tùng thông minh (Smart Automotive Keyword Matcher)
+export const isReminderMatched = (remItemType, logItemName) => {
+  const rem = (remItemType || '').toLowerCase();
+  const log = (logItemName || '').toLowerCase();
+
+  // 1. Nhớt động cơ
+  if (
+    (rem.includes('nhớt động cơ') || rem.includes('dầu động cơ') || rem.includes('nhớt máy')) && 
+    (log.includes('nhớt') || log.includes('dầu động cơ') || log.includes('dầu máy') || log.includes('5w-30') || log.includes('5w30') || log.includes('engine oil'))
+  ) {
+    return true;
+  }
+
+  // 2. Lọc nhớt
+  if (
+    rem.includes('lọc nhớt') && 
+    (log.includes('lọc nhớt') || log.includes('lọc dầu') || log.includes('oil filter') || log.includes('2630035505'))
+  ) {
+    return true;
+  }
+
+  // 3. Lọc gió động cơ
+  if (
+    rem.includes('lọc gió động cơ') && 
+    (log.includes('lọc gió động cơ') || (log.includes('lọc gió') && !log.includes('lạnh') && !log.includes('điều hòa') && !log.includes('cabin')))
+  ) {
+    return true;
+  }
+
+  // 4. Lọc gió máy lạnh / Cabin filter
+  if (
+    (rem.includes('máy lạnh') || rem.includes('cabin') || rem.includes('điều hòa')) && 
+    (log.includes('máy lạnh') || log.includes('cabin') || log.includes('điều hòa') || log.includes('lọc gió cabin'))
+  ) {
+    return true;
+  }
+
+  // 5. Lọc xăng
+  if (
+    rem.includes('lọc xăng') && 
+    (log.includes('lọc xăng') || log.includes('lọc nhiên liệu') || log.includes('31112c1000') || log.includes('fuel filter'))
+  ) {
+    return true;
+  }
+
+  // 6. Phanh & Dầu phanh
+  if (
+    rem.includes('phanh') && 
+    (log.includes('phanh') || log.includes('thắng') || log.includes('brake') || log.includes('dot4'))
+  ) {
+    return true;
+  }
+
+  // 7. Bugi đánh lửa
+  if (
+    rem.includes('bugi') && 
+    (log.includes('bugi') || log.includes('spark plug') || log.includes('iridium'))
+  ) {
+    return true;
+  }
+
+  // 8. Dầu hộp số tự động
+  if (
+    rem.includes('hộp số') && 
+    (log.includes('hộp số') || log.includes('atf') || log.includes('transmission'))
+  ) {
+    return true;
+  }
+
+  // Fallback string matching
+  return rem.includes(log) || log.includes(rem);
 };
 
 // Helper tính trạng thái bảo dưỡng kép (Drivvo Dual Trigger: ODO & Ngày)
@@ -85,11 +177,11 @@ export const vehicleService = {
     }
 
     // Local Storage Fallback Mode
-    const savedVehicle = localStorage.getItem(STORAGE_KEYS.VEHICLE);
-    const savedServices = localStorage.getItem(STORAGE_KEYS.SERVICE_LOGS);
-    const savedFuel = localStorage.getItem(STORAGE_KEYS.FUEL_LOGS);
-    const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-    const savedReminders = localStorage.getItem(STORAGE_KEYS.REMINDERS);
+    const savedVehicle = safeGetStorage(STORAGE_KEYS.VEHICLE);
+    const savedServices = safeGetStorage(STORAGE_KEYS.SERVICE_LOGS);
+    const savedFuel = safeGetStorage(STORAGE_KEYS.FUEL_LOGS);
+    const savedExpenses = safeGetStorage(STORAGE_KEYS.EXPENSES);
+    const savedReminders = safeGetStorage(STORAGE_KEYS.REMINDERS);
 
     return {
       vehicle: savedVehicle ? JSON.parse(savedVehicle) : INITIAL_VEHICLE,
@@ -101,7 +193,7 @@ export const vehicleService = {
     };
   },
 
-  // Thêm lần đổ xăng mới
+  // Thêm lần đổ xăng mới (Fuelio Full Tank Logic)
   async addFuelLog(logData, currentVehicle, existingFuelLogs) {
     const newOdo = Number(logData.odo);
     const liters = Number(logData.liters);
@@ -112,9 +204,11 @@ export const vehicleService = {
     let cost_per_km = null;
 
     if (existingFuelLogs.length > 0) {
-      const lastFullLog = existingFuelLogs.find(f => f.is_full_tank);
-      if (lastFullLog && newOdo > lastFullLog.odo) {
-        const deltaKm = newOdo - lastFullLog.odo;
+      // Sắp xếp theo ODO giảm dần để lấy chính xác lần đổ đầy bình gần nhất
+      const sortedLogs = [...existingFuelLogs].sort((a, b) => (Number(b.odo) || 0) - (Number(a.odo) || 0));
+      const lastFullLog = sortedLogs.find(f => f.is_full_tank && Number(f.odo) < newOdo);
+      if (lastFullLog && newOdo > Number(lastFullLog.odo)) {
+        const deltaKm = newOdo - Number(lastFullLog.odo);
         consumption_l_100km = Number(((liters / deltaKm) * 100).toFixed(2));
         cost_per_km = Number((totalCost / deltaKm).toFixed(0));
       }
@@ -164,13 +258,13 @@ export const vehicleService = {
     };
 
     const updatedFuelLogs = [newLog, ...existingFuelLogs];
-    localStorage.setItem(STORAGE_KEYS.FUEL_LOGS, JSON.stringify(updatedFuelLogs));
-    localStorage.setItem(STORAGE_KEYS.VEHICLE, JSON.stringify(updatedVehicle));
+    safeSetStorage(STORAGE_KEYS.FUEL_LOGS, JSON.stringify(updatedFuelLogs));
+    safeSetStorage(STORAGE_KEYS.VEHICLE, JSON.stringify(updatedVehicle));
 
     return { newLog, updatedVehicle, updatedFuelLogs };
   },
 
-  // Thêm lần bảo dưỡng mới
+  // Thêm lần bảo dưỡng mới (Drivvo Smart Reset Logic)
   async addServiceLog(serviceData, currentVehicle, existingServices, existingReminders) {
     const newOdo = Number(serviceData.odo);
     const totalAmount = serviceData.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0);
@@ -227,12 +321,9 @@ export const vehicleService = {
       }
     }
 
-    // Cập nhật nhắc nhở bảo dưỡng liên quan
+    // Tự động reset và cập nhật các nhắc nhở bảo dưỡng liên quan bằng so khớp từ khóa thông minh
     const updatedReminders = existingReminders.map(rem => {
-      const matched = serviceData.items.some(item => 
-        item.item_name.toLowerCase().includes(rem.item_type.toLowerCase()) ||
-        rem.item_type.toLowerCase().includes(item.item_name.toLowerCase())
-      );
+      const matched = serviceData.items.some(item => isReminderMatched(rem.item_type, item.item_name));
 
       if (matched) {
         const nextDueOdo = newOdo + rem.interval_km;
@@ -245,6 +336,7 @@ export const vehicleService = {
           last_service_date: serviceData.serviceDate,
           next_due_odo: nextDueOdo,
           next_due_date: nextDueDate.toISOString().split('T')[0],
+          status: 'OK',
         };
       }
       return rem;
@@ -256,9 +348,9 @@ export const vehicleService = {
     };
 
     const updatedServices = [newLog, ...existingServices];
-    localStorage.setItem(STORAGE_KEYS.SERVICE_LOGS, JSON.stringify(updatedServices));
-    localStorage.setItem(STORAGE_KEYS.REMINDERS, JSON.stringify(updatedReminders));
-    localStorage.setItem(STORAGE_KEYS.VEHICLE, JSON.stringify(updatedVehicle));
+    safeSetStorage(STORAGE_KEYS.SERVICE_LOGS, JSON.stringify(updatedServices));
+    safeSetStorage(STORAGE_KEYS.REMINDERS, JSON.stringify(updatedReminders));
+    safeSetStorage(STORAGE_KEYS.VEHICLE, JSON.stringify(updatedVehicle));
 
     return { newLog, updatedVehicle, updatedServices, updatedReminders };
   },
@@ -293,17 +385,17 @@ export const vehicleService = {
     }
 
     const updatedExpenses = [newLog, ...existingExpenses];
-    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(updatedExpenses));
+    safeSetStorage(STORAGE_KEYS.EXPENSES, JSON.stringify(updatedExpenses));
     return { newLog, updatedExpenses };
   },
 
   // Reset về dữ liệu mẫu thực tế ban đầu
   resetToDefault() {
-    localStorage.removeItem(STORAGE_KEYS.VEHICLE);
-    localStorage.removeItem(STORAGE_KEYS.SERVICE_LOGS);
-    localStorage.removeItem(STORAGE_KEYS.FUEL_LOGS);
-    localStorage.removeItem(STORAGE_KEYS.EXPENSES);
-    localStorage.removeItem(STORAGE_KEYS.REMINDERS);
+    safeRemoveStorage(STORAGE_KEYS.VEHICLE);
+    safeRemoveStorage(STORAGE_KEYS.SERVICE_LOGS);
+    safeRemoveStorage(STORAGE_KEYS.FUEL_LOGS);
+    safeRemoveStorage(STORAGE_KEYS.EXPENSES);
+    safeRemoveStorage(STORAGE_KEYS.REMINDERS);
     return {
       vehicle: INITIAL_VEHICLE,
       serviceLogs: INITIAL_SERVICE_LOGS,
