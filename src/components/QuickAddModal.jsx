@@ -1,5 +1,19 @@
-import React, { useState } from 'react';
-import { X, Fuel, Wrench, DollarSign, Plus, Trash2, Check, Sparkles, Building, Camera } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { 
+  X, 
+  Fuel, 
+  Wrench, 
+  DollarSign, 
+  Plus, 
+  Trash2, 
+  Check, 
+  Sparkles, 
+  Building, 
+  Camera, 
+  Image as ImageIcon,
+  Eye,
+  AlertCircle
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function QuickAddModal({ 
@@ -11,7 +25,8 @@ export default function QuickAddModal({
   onAddService, 
   onAddExpense 
 }) {
-  const [activeMode, setActiveMode] = useState(initialMode); // fuel, service, expense
+  const [activeMode, setActiveMode] = useState(initialMode);
+  const fileInputRef = useRef(null);
 
   // Fuel State
   const [fuelOdo, setFuelOdo] = useState(currentOdo || 65010);
@@ -25,13 +40,16 @@ export default function QuickAddModal({
   const [garageType, setGarageType] = useState('HANG'); // HANG, GARA_NGOAI
   const [garageName, setGarageName] = useState('Hyundai Ngọc Phát');
   const [serviceNotes, setServiceNotes] = useState('');
+  const [invoiceImages, setInvoiceImages] = useState([]);
+  const [previewImageModal, setPreviewImageModal] = useState(null);
+
   const [serviceItems, setServiceItems] = useState([
     { 
       item_name: 'Dầu nhớt động cơ 5W-30', 
       category: 'ENGINE_CHASSIS', 
       is_mandatory: true, 
       quantity: 4, 
-      unit_price: 195000, 
+      unit_price: 215000, 
       labor_price: 0 
     },
     { 
@@ -39,7 +57,7 @@ export default function QuickAddModal({
       category: 'ENGINE_CHASSIS', 
       is_mandatory: true, 
       quantity: 1, 
-      unit_price: 115000, 
+      unit_price: 125000, 
       labor_price: 0 
     }
   ]);
@@ -51,6 +69,22 @@ export default function QuickAddModal({
   const [expenseNotes, setExpenseNotes] = useState('');
 
   if (!isOpen) return null;
+
+  // Handle Photo Upload (Base64)
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setInvoiceImages(prev => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removePhoto = (index) => {
+    setInvoiceImages(prev => prev.filter((_, idx) => idx !== index));
+  };
 
   // Handle Fuel Submit
   const handleFuelSubmit = (e) => {
@@ -82,7 +116,7 @@ export default function QuickAddModal({
       serviceDate: new Date().toISOString().split('T')[0],
       notes: serviceNotes,
       items: formattedItems,
-      invoiceUrls: [
+      invoiceUrls: invoiceImages.length > 0 ? invoiceImages : [
         'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1000&q=80'
       ]
     });
@@ -115,7 +149,7 @@ export default function QuickAddModal({
     } catch (err) {}
   };
 
-  // Helper Service Row Operations
+  // Service Dynamic Rows
   const addServiceRow = () => {
     setServiceItems([
       ...serviceItems,
@@ -136,6 +170,12 @@ export default function QuickAddModal({
   const totalServiceCalc = serviceItems.reduce((acc, it) => 
     acc + (Number(it.quantity || 0) * Number(it.unit_price || 0)) + Number(it.labor_price || 0), 0
   );
+
+  const mandatoryServiceCalc = serviceItems
+    .filter(it => it.is_mandatory !== false)
+    .reduce((acc, it) => acc + (Number(it.quantity || 0) * Number(it.unit_price || 0)) + Number(it.labor_price || 0), 0);
+
+  const additiveServiceCalc = totalServiceCalc - mandatoryServiceCalc;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
@@ -163,7 +203,7 @@ export default function QuickAddModal({
               }`}
             >
               <Wrench className="w-3.5 h-3.5" />
-              <span>Bảo dưỡng</span>
+              <span>Ghi bảo dưỡng</span>
             </button>
             <button
               onClick={() => setActiveMode('expense')}
@@ -188,7 +228,7 @@ export default function QuickAddModal({
 
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto flex-1 space-y-4">
-          {/* 1. FUEL FORM (Fuelio One-Touch Style) */}
+          {/* 1. FUEL FORM */}
           {activeMode === 'fuel' && (
             <form onSubmit={handleFuelSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -241,7 +281,6 @@ export default function QuickAddModal({
                   </select>
                 </div>
 
-                {/* Fuelio Full Tank Toggle */}
                 <div className="flex items-center justify-between p-2.5 bg-slate-950/80 border border-slate-800 rounded-xl">
                   <div>
                     <span className="text-xs font-semibold text-slate-200 block">Đầy bình?</span>
@@ -265,12 +304,12 @@ export default function QuickAddModal({
             </form>
           )}
 
-          {/* 2. SERVICE FORM (Drivvo Items & Garage Type) */}
+          {/* 2. SERVICE FORM (Nâng Cấp Phân Loại Bắt Buộc/Phụ Gia & Chụp Hóa Đơn) */}
           {activeMode === 'service' && (
             <form onSubmit={handleServiceSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Số ODO (km)</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Số ODO làm bảo dưỡng</label>
                   <input
                     type="number"
                     value={serviceOdo}
@@ -297,7 +336,7 @@ export default function QuickAddModal({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Tên Gara / Trung tâm</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Tên Gara / Trung tâm thực hiện</label>
                 <input
                   type="text"
                   value={garageName}
@@ -310,15 +349,20 @@ export default function QuickAddModal({
               {/* Dynamic Items Rows */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                    Danh mục phụ tùng & Công bảo dưỡng
-                  </label>
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
+                      Chi tiết phụ tùng & Công bảo dưỡng
+                    </label>
+                    <span className="text-[10px] text-slate-400">
+                      Gắn nhãn [Bắt buộc] hoặc [Phụ gia/Gia tăng] để theo dõi
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={addServiceRow}
                     className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Thêm mục
+                    <Plus className="w-3.5 h-3.5" /> Thêm dòng
                   </button>
                 </div>
 
@@ -328,7 +372,7 @@ export default function QuickAddModal({
                       <div className="flex items-center justify-between gap-2">
                         <input
                           type="text"
-                          placeholder="Tên phụ tùng / Hạng mục..."
+                          placeholder="Tên phụ tùng (vd: Nhớt máy, Lọc xăng, Phụ gia...)"
                           value={item.item_name}
                           onChange={(e) => updateServiceRow(idx, 'item_name', e.target.value)}
                           required
@@ -359,7 +403,7 @@ export default function QuickAddModal({
                           </select>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Đơn giá (đ)</span>
+                          <span className="text-[10px] text-slate-400 block">Thành tiền (đ)</span>
                           <input
                             type="number"
                             value={item.unit_price}
@@ -368,18 +412,18 @@ export default function QuickAddModal({
                           />
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Bắt buộc?</span>
-                          <div className="flex items-center h-6">
-                            <input
-                              type="checkbox"
-                              checked={item.is_mandatory}
-                              onChange={(e) => updateServiceRow(idx, 'is_mandatory', e.target.checked)}
-                              className="w-4 h-4 accent-cyan-500"
-                            />
-                            <span className="text-[10px] text-slate-400 ml-1">
-                              {item.is_mandatory ? 'Bắt buộc' : 'Phụ gia'}
-                            </span>
-                          </div>
+                          <span className="text-[10px] text-slate-400 block">Quy chuẩn</span>
+                          <button
+                            type="button"
+                            onClick={() => updateServiceRow(idx, 'is_mandatory', !item.is_mandatory)}
+                            className={`w-full py-1 px-1 rounded text-[10px] font-bold border transition-colors ${
+                              item.is_mandatory 
+                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' 
+                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                            }`}
+                          >
+                            {item.is_mandatory ? '✓ Bắt buộc' : '⚡ Phụ gia'}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -387,19 +431,78 @@ export default function QuickAddModal({
                 </div>
               </div>
 
-              {/* Total Calculation Strip */}
-              <div className="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-400">Tổng tiền dự tính:</span>
-                <strong className="text-emerald-400 font-mono text-base">
-                  {totalServiceCalc.toLocaleString('vi-VN')} đ
-                </strong>
+              {/* Upload & Snapshot Invoice Photos */}
+              <div className="space-y-2 pt-1 border-t border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-cyan-400" />
+                    Đính kèm ảnh chụp hóa đơn / Phiếu báo giá ({invoiceImages.length} ảnh)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-semibold flex items-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" /> Chụp / Chọn ảnh
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+
+                {invoiceImages.length > 0 && (
+                  <div className="flex items-center gap-2 overflow-x-auto py-2">
+                    {invoiceImages.map((img, idx) => (
+                      <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-700 flex-shrink-0 group">
+                        <img src={img} alt={`Hóa đơn ${idx}`} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImageModal(img)}
+                            className="p-1 bg-cyan-600 rounded text-white text-[10px]"
+                          >
+                            <Eye className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(idx)}
+                            className="p-1 bg-rose-600 rounded text-white text-[10px]"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Total Calculation & Additive Ratio */}
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400">Tổng thanh toán phiếu:</span>
+                  <strong className="text-emerald-400 font-mono text-base">
+                    {totalServiceCalc.toLocaleString('vi-VN')} đ
+                  </strong>
+                </div>
+                {additiveServiceCalc > 0 && (
+                  <div className="flex justify-between text-[11px] text-amber-400 pt-1 border-t border-slate-800/80">
+                    <span>Trong đó phụ gia/tùy chọn:</span>
+                    <span className="font-semibold">{additiveServiceCalc.toLocaleString('vi-VN')} đ ({Math.round((additiveServiceCalc/totalServiceCalc)*100)}%)</span>
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
                 className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all active:scale-98 text-sm"
               >
-                Lưu Phiếu Bảo Dưỡng
+                Lưu Phiếu Bảo Dưỡng (Tự động Reset Mốc Hạn)
               </button>
             </form>
           )}
@@ -457,6 +560,16 @@ export default function QuickAddModal({
           )}
         </div>
       </div>
+
+      {/* Lightbox Preview Modal for Form Images */}
+      {previewImageModal && (
+        <div 
+          onClick={() => setPreviewImageModal(null)}
+          className="fixed inset-0 z-60 bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+        >
+          <img src={previewImageModal} alt="Xem trước hóa đơn" className="max-w-full max-h-full rounded-xl object-contain" />
+        </div>
+      )}
     </div>
   );
 }

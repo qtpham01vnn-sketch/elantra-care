@@ -6,6 +6,7 @@ import TimelineTab from './components/TimelineTab';
 import ReportsTab from './components/ReportsTab';
 import RemindersTab from './components/RemindersTab';
 import QuickAddModal from './components/QuickAddModal';
+import ExportLogbookModal from './components/ExportLogbookModal';
 import { vehicleService, calculateReminderStatus } from './services/vehicleService';
 import { 
   INITIAL_VEHICLE, 
@@ -18,9 +19,10 @@ import {
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const [quickAddInitialMode, setQuickAddInitialMode] = useState('fuel');
 
-  // App Main State - Initialized synchronously with rich default data
+  // App Main State
   const [vehicle, setVehicle] = useState(INITIAL_VEHICLE);
   const [serviceLogs, setServiceLogs] = useState(INITIAL_SERVICE_LOGS);
   const [fuelLogs, setFuelLogs] = useState(INITIAL_FUEL_LOGS);
@@ -108,6 +110,7 @@ export default function App() {
       <Header 
         vehicle={vehicle} 
         onReset={handleReset} 
+        onOpenExport={() => setIsExportOpen(true)}
         activeAlertsCount={activeAlertsCount} 
       />
 
@@ -132,6 +135,7 @@ export default function App() {
             expenses={expenses}
             currentOdo={vehicle.current_odo}
             onOpenQuickAdd={openQuickAddWithMode}
+            onOpenExport={() => setIsExportOpen(true)}
           />
         )}
 
@@ -170,6 +174,15 @@ export default function App() {
         onAddFuel={handleAddFuel}
         onAddService={handleAddService}
         onAddExpense={handleAddExpense}
+      />
+
+      {/* Export Digital Logbook Modal */}
+      <ExportLogbookModal
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        vehicle={vehicle}
+        serviceLogs={serviceLogs}
+        reminders={reminders}
       />
     </div>
   );

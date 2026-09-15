@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Wrench, Shield, CheckCircle2, AlertCircle, FileText, Image, Building, Sparkles } from 'lucide-react';
+import { X, Wrench, Shield, CheckCircle2, AlertCircle, FileText, Image, Building, Sparkles, AlertTriangle } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 
 export default function ServiceDetailModal({ service, onClose }) {
@@ -17,9 +17,10 @@ export default function ServiceDetailModal({ service, onClose }) {
 
   const mandatoryTotal = mandatoryItems.reduce((acc, it) => acc + Number(it.total_price || 0), 0);
   const optionalTotal = optionalItems.reduce((acc, it) => acc + Number(it.total_price || 0), 0);
+  const optionalPercent = service.total_amount > 0 ? Math.round((optionalTotal / service.total_amount) * 100) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
       <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="p-4 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between">
@@ -34,7 +35,7 @@ export default function ServiceDetailModal({ service, onClose }) {
                 }`}>
                   {isHang ? 'Chính Hãng Hyundai' : 'Gara Ngoài Chuyên Nghiệp'}
                 </span>
-                <span className="text-xs text-slate-400">{service.service_date}</span>
+                <span className="text-xs text-slate-400 font-mono">{service.service_date}</span>
               </div>
               <h3 className="text-base font-bold text-white mt-0.5">{service.garage_name}</h3>
             </div>
@@ -57,15 +58,30 @@ export default function ServiceDetailModal({ service, onClose }) {
             </div>
             <div>
               <span className="text-slate-400 block text-[10px]">Tổng tiền phiếu</span>
-              <strong className="text-emerald-400 text-sm">{formatCurrency(service.total_amount)}</strong>
+              <strong className="text-emerald-400 text-sm font-mono">{formatCurrency(service.total_amount)}</strong>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <span className="text-slate-400 block text-[10px]">Cơ cấu phụ tùng</span>
+              <span className="text-slate-400 block text-[10px]">Phân tích quy chuẩn</span>
               <span className="text-slate-300">
                 {mandatoryItems.length} bắt buộc, {optionalItems.length} phụ gia
               </span>
             </div>
           </div>
+
+          {/* Cảnh báo tỷ lệ phụ gia (Nếu có) */}
+          {optionalItems.length > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl flex items-start space-x-2.5 text-xs">
+              <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-300">
+                  Phát hiện {optionalItems.length} gói phụ gia / vệ sinh gia tăng ({formatCurrency(optionalTotal)} - chiếm {optionalPercent}% phiếu)
+                </span>
+                <p className="text-slate-300 text-[11px] mt-0.5">
+                  Bao gồm: {optionalItems.map(it => it.item_name).join(', ')}. Đây là các dịch vụ khuyến nghị thêm, không nằm trong danh mục bảo dưỡng cấp bắt buộc của Hyundai Motor.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           {service.notes && (
@@ -75,7 +91,7 @@ export default function ServiceDetailModal({ service, onClose }) {
             </div>
           )}
 
-          {/* NHÓM 1: BẢO DƯỠNG MÁY / GẦM (Nếu có) */}
+          {/* NHÓM 1: BẢO DƯỠNG MÁY / GẦM */}
           {engineChassisItems.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -97,10 +113,9 @@ export default function ServiceDetailModal({ service, onClose }) {
                               {item.item_code}
                             </span>
                           )}
-                          {/* Mandatory vs Optional Badge */}
                           {item.is_mandatory === false ? (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-semibold">
-                              <Sparkles className="w-2.5 h-2.5" /> Phụ gia / Tùy chọn
+                              <Sparkles className="w-2.5 h-2.5" /> Phụ gia ngoài quy chuẩn
                             </span>
                           ) : (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium">
@@ -115,7 +130,7 @@ export default function ServiceDetailModal({ service, onClose }) {
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-bold text-slate-100 block">
+                        <span className="text-xs font-bold text-slate-100 block font-mono">
                           {formatCurrency(item.total_price)}
                         </span>
                       </div>
@@ -126,7 +141,7 @@ export default function ServiceDetailModal({ service, onClose }) {
             </div>
           )}
 
-          {/* NHÓM 2: ĐỒNG SƠN & THÂN VỎ (Nếu có) */}
+          {/* NHÓM 2: ĐỒNG SƠN & THÂN VỎ */}
           {bodyPaintItems.length > 0 && (
             <div className="space-y-2 pt-2">
               <div className="flex items-center justify-between">
@@ -156,7 +171,7 @@ export default function ServiceDetailModal({ service, onClose }) {
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-bold text-amber-300 block">
+                        <span className="text-xs font-bold text-amber-300 block font-mono">
                           {formatCurrency(item.total_price)}
                         </span>
                       </div>
@@ -167,24 +182,7 @@ export default function ServiceDetailModal({ service, onClose }) {
             </div>
           )}
 
-          {/* Phân tích Bắt buộc vs Tùy chọn */}
-          {optionalItems.length > 0 && (
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800/80 p-3 rounded-xl border border-slate-700 text-xs space-y-1.5">
-              <div className="flex justify-between text-slate-300">
-                <span>Vật tư & Công bảo dưỡng bắt buộc:</span>
-                <span className="font-semibold text-slate-100">{formatCurrency(mandatoryTotal)}</span>
-              </div>
-              <div className="flex justify-between text-amber-300">
-                <span className="flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  Phụ gia & Hóa chất làm sạch tùy chọn:
-                </span>
-                <span className="font-semibold">{formatCurrency(optionalTotal)}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Hóa đơn đính kèm (Receipt Image Preview) */}
+          {/* Ảnh chụp hóa đơn gốc */}
           {service.invoice_urls && service.invoice_urls.length > 0 && (
             <div className="space-y-2 pt-2">
               <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
@@ -203,7 +201,7 @@ export default function ServiceDetailModal({ service, onClose }) {
                       alt={`Hóa đơn ${idx + 1}`} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
                       Phóng to ảnh
                     </div>
                   </div>
@@ -216,7 +214,7 @@ export default function ServiceDetailModal({ service, onClose }) {
         {/* Footer */}
         <div className="p-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
           <div className="text-xs text-slate-400">
-            Tổng thanh toán: <strong className="text-emerald-400 text-base ml-1">{formatCurrency(service.total_amount)}</strong>
+            Tổng thanh toán: <strong className="text-emerald-400 font-mono text-base ml-1">{formatCurrency(service.total_amount)}</strong>
           </div>
           <button
             onClick={onClose}
@@ -231,7 +229,7 @@ export default function ServiceDetailModal({ service, onClose }) {
       {selectedImage && (
         <div 
           onClick={() => setSelectedImage(null)}
-          className="fixed inset-0 z-60 bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+          className="fixed inset-0 z-60 bg-black/95 flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
         >
           <img 
             src={selectedImage} 

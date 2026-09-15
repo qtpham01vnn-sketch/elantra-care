@@ -1,11 +1,11 @@
 import React from 'react';
-import { ShieldCheck, Database, RefreshCw, Car, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Database, RefreshCw, Car, AlertTriangle, Printer } from 'lucide-react';
 import { isSupabaseConfigured } from '../services/supabaseClient';
 import { formatKm } from '../services/vehicleService';
 
-export default function Header({ vehicle, onReset, activeAlertsCount }) {
+export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCount }) {
   return (
-    <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
+    <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg print:hidden">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         {/* Left: Vehicle Quick Info */}
         <div className="flex items-center space-x-3">
@@ -31,6 +31,16 @@ export default function Header({ vehicle, onReset, activeAlertsCount }) {
 
         {/* Right: Actions & Status */}
         <div className="flex items-center space-x-2">
+          {/* Export PDF Button */}
+          <button
+            onClick={onOpenExport}
+            title="Xuất sổ bảo dưỡng điện tử / In file PDF"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition-all active:scale-95"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Xuất sổ PDF</span>
+          </button>
+
           {/* Connection Status Badge */}
           <div 
             title={isSupabaseConfigured ? "Đang kết nối Supabase Cloud" : "Đang chạy chế độ Local Demo mượt mà"}
