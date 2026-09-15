@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   X, 
   Fuel, 
@@ -12,7 +12,9 @@ import {
   Camera, 
   Image as ImageIcon,
   Eye,
-  AlertCircle
+  UploadCloud,
+  ClipboardPaste,
+  Info
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -27,6 +29,7 @@ export default function QuickAddModal({
 }) {
   const [activeMode, setActiveMode] = useState(initialMode);
   const fileInputRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Fuel State
   const [fuelOdo, setFuelOdo] = useState(currentOdo || 65010);
@@ -53,11 +56,11 @@ export default function QuickAddModal({
       labor_price: 0 
     },
     { 
-      item_name: 'Lọc nhớt Mobis', 
+      item_name: 'Lọc gió máy lạnh (Cabin filter)', 
       category: 'ENGINE_CHASSIS', 
       is_mandatory: true, 
       quantity: 1, 
-      unit_price: 125000, 
+      unit_price: 350000, 
       labor_price: 0 
     }
   ]);
@@ -68,9 +71,62 @@ export default function QuickAddModal({
   const [expenseAmount, setExpenseAmount] = useState('500000');
   const [expenseNotes, setExpenseNotes] = useState('');
 
+  // 1. TÍNH NĂNG DÁN ẢNH TỪ CLIPBOARD (Ctrl + V)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePaste = (e) => {
+      const clipboardData = e.clipboardData;
+      if (!clipboardData) return;
+
+      const items = clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setInvoiceImages(prev => [...prev, reader.result]);
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  // Handle Photo Upload (Base64)
+  // 2. TÍNH NĂNG KÉO THẢ ẢNH (DRAG & DROP)
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files || []);
+    files.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setInvoiceImages(prev => [...prev, reader.result]);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  // 3. CHỌN ẢNH TỪ FILE FOLDER / CAMERA
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files || []);
     files.forEach(file => {
@@ -179,7 +235,8 @@ export default function QuickAddModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-t-3xl sm:rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-t-3xl sm:rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        
         {/* Header with Mode Switcher */}
         <div className="p-4 bg-slate-800/90 border-b border-slate-700 flex items-center justify-between">
           <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
@@ -228,6 +285,7 @@ export default function QuickAddModal({
 
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto flex-1 space-y-4">
+          
           {/* 1. FUEL FORM */}
           {activeMode === 'fuel' && (
             <form onSubmit={handleFuelSubmit} className="space-y-4">
@@ -304,12 +362,12 @@ export default function QuickAddModal({
             </form>
           )}
 
-          {/* 2. SERVICE FORM (Nâng Cấp Phân Loại Bắt Buộc/Phụ Gia & Chụp Hóa Đơn) */}
+          {/* 2. SERVICE FORM */}
           {activeMode === 'service' && (
             <form onSubmit={handleServiceSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Số ODO làm bảo dưỡng</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1">Số ODO làm bảo dưỡng (km)</label>
                   <input
                     type="number"
                     value={serviceOdo}
@@ -336,7 +394,7 @@ export default function QuickAddModal({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Tên Gara / Trung tâm thực hiện</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">Tên Gara / Đại lý thực hiện</label>
                 <input
                   type="text"
                   value={garageName}
@@ -346,7 +404,7 @@ export default function QuickAddModal({
                 />
               </div>
 
-              {/* Dynamic Items Rows */}
+              {/* Dynamic Items Rows With Clear Unit Price & Quantity */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
@@ -354,7 +412,7 @@ export default function QuickAddModal({
                       Chi tiết phụ tùng & Công bảo dưỡng
                     </label>
                     <span className="text-[10px] text-slate-400">
-                      Gắn nhãn [Bắt buộc] hoặc [Phụ gia/Gia tăng] để theo dõi
+                      Hiển thị rõ Số lượng (SL) × Đơn giá = Thành tiền
                     </span>
                   </div>
                   <button
@@ -366,84 +424,114 @@ export default function QuickAddModal({
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                  {serviceItems.map((item, idx) => (
-                    <div key={idx} className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <input
-                          type="text"
-                          placeholder="Tên phụ tùng (vd: Nhớt máy, Lọc xăng, Phụ gia...)"
-                          value={item.item_name}
-                          onChange={(e) => updateServiceRow(idx, 'item_name', e.target.value)}
-                          required
-                          className="flex-1 px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"
-                        />
-                        {serviceItems.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeServiceRow(idx)}
-                            className="p-1.5 text-rose-400 hover:bg-rose-500/10 rounded-lg"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                          <span className="text-[10px] text-slate-400 block">Nhóm</span>
-                          <select
-                            value={item.category}
-                            onChange={(e) => updateServiceRow(idx, 'category', e.target.value)}
-                            className="w-full p-1 bg-slate-900 border border-slate-700 rounded text-slate-200 text-[11px]"
-                          >
-                            <option value="ENGINE_CHASSIS">Máy / Gầm</option>
-                            <option value="BODY_PAINT">Đồng sơn</option>
-                            <option value="ADDITIVE">Phụ gia</option>
-                          </select>
-                        </div>
-                        <div>
-                          <span className="text-[10px] text-slate-400 block">Thành tiền (đ)</span>
+                <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                  {serviceItems.map((item, idx) => {
+                    const rowTotal = (Number(item.quantity || 0) * Number(item.unit_price || 0)) + Number(item.labor_price || 0);
+                    return (
+                      <div key={idx} className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-2.5">
+                        {/* Row 1: Name & Delete */}
+                        <div className="flex items-center justify-between gap-2">
                           <input
-                            type="number"
-                            value={item.unit_price}
-                            onChange={(e) => updateServiceRow(idx, 'unit_price', Number(e.target.value))}
-                            className="w-full p-1 bg-slate-900 border border-slate-700 rounded text-slate-100 font-mono text-xs"
+                            type="text"
+                            placeholder="Tên phụ tùng (vd: Nhớt máy 5W-30, Lọc gió, Phụ gia...)"
+                            value={item.item_name}
+                            onChange={(e) => updateServiceRow(idx, 'item_name', e.target.value)}
+                            required
+                            className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                           />
+                          {serviceItems.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeServiceRow(idx)}
+                              className="p-1.5 text-rose-400 hover:bg-rose-500/10 rounded-lg"
+                              title="Xóa dòng"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
-                        <div>
-                          <span className="text-[10px] text-slate-400 block">Quy chuẩn</span>
-                          <button
-                            type="button"
-                            onClick={() => updateServiceRow(idx, 'is_mandatory', !item.is_mandatory)}
-                            className={`w-full py-1 px-1 rounded text-[10px] font-bold border transition-colors ${
-                              item.is_mandatory 
-                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' 
-                                : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                            }`}
-                          >
-                            {item.is_mandatory ? '✓ Bắt buộc' : '⚡ Phụ gia'}
-                          </button>
+
+                        {/* Row 2: Category, Quantity, Unit Price, Mandatory Toggle */}
+                        <div className="grid grid-cols-12 gap-2 text-xs items-end">
+                          {/* Nhóm */}
+                          <div className="col-span-3">
+                            <span className="text-[10px] text-slate-400 block mb-0.5">Nhóm</span>
+                            <select
+                              value={item.category}
+                              onChange={(e) => updateServiceRow(idx, 'category', e.target.value)}
+                              className="w-full p-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-[11px]"
+                            >
+                              <option value="ENGINE_CHASSIS">Máy / Gầm</option>
+                              <option value="BODY_PAINT">Đồng sơn</option>
+                              <option value="ADDITIVE">Phụ gia</option>
+                            </select>
+                          </div>
+
+                          {/* Số lượng */}
+                          <div className="col-span-2">
+                            <span className="text-[10px] text-slate-400 block mb-0.5">Số lượng</span>
+                            <input
+                              type="number"
+                              min="1"
+                              step="0.5"
+                              value={item.quantity}
+                              onChange={(e) => updateServiceRow(idx, 'quantity', Number(e.target.value))}
+                              className="w-full p-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 font-mono text-center text-xs font-bold"
+                            />
+                          </div>
+
+                          {/* Đơn giá */}
+                          <div className="col-span-4">
+                            <span className="text-[10px] text-slate-400 block mb-0.5">Đơn giá (đ)</span>
+                            <input
+                              type="number"
+                              value={item.unit_price}
+                              onChange={(e) => updateServiceRow(idx, 'unit_price', Number(e.target.value))}
+                              className="w-full p-1.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 font-mono text-xs font-bold"
+                            />
+                          </div>
+
+                          {/* Quy chuẩn */}
+                          <div className="col-span-3">
+                            <span className="text-[10px] text-slate-400 block mb-0.5">Quy chuẩn</span>
+                            <button
+                              type="button"
+                              onClick={() => updateServiceRow(idx, 'is_mandatory', !item.is_mandatory)}
+                              className={`w-full py-1.5 px-1 rounded-lg text-[10px] font-bold border transition-colors ${
+                                item.is_mandatory 
+                                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/40' 
+                                  : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                              }`}
+                            >
+                              {item.is_mandatory ? '✓ Bắt buộc' : '⚡ Phụ gia'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Row 3: Subtotal Preview for this Item */}
+                        <div className="flex justify-between items-center px-1 pt-1 text-[11px] text-slate-400 border-t border-slate-900">
+                          <span>Công thức: <strong className="text-slate-300 font-mono">{item.quantity} × {Number(item.unit_price || 0).toLocaleString('vi-VN')} đ</strong></span>
+                          <span>Thành tiền: <strong className="text-cyan-300 font-mono font-bold">{rowTotal.toLocaleString('vi-VN')} đ</strong></span>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Upload & Snapshot Invoice Photos */}
+              {/* Upload & Snapshot Invoice Photos + Drag & Drop + Ctrl+V */}
               <div className="space-y-2 pt-1 border-t border-slate-800">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <Camera className="w-4 h-4 text-cyan-400" />
-                    Đính kèm ảnh chụp hóa đơn / Phiếu báo giá ({invoiceImages.length} ảnh)
+                    Ảnh chụp hóa đơn / Phiếu báo giá ({invoiceImages.length} ảnh)
                   </label>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-semibold flex items-center gap-1"
                   >
-                    <Plus className="w-3 h-3" /> Chụp / Chọn ảnh
+                    <Plus className="w-3 h-3" /> Chọn từ thư mục
                   </button>
                   <input
                     ref={fileInputRef}
@@ -455,6 +543,33 @@ export default function QuickAddModal({
                   />
                 </div>
 
+                {/* Drag and Drop Zone with Paste Support */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                    isDragging 
+                      ? 'border-cyan-400 bg-cyan-500/10' 
+                      : 'border-slate-700 hover:border-slate-600 bg-slate-950/40'
+                  }`}
+                >
+                  <div className="flex flex-col items-center justify-center space-y-1.5">
+                    <div className="flex items-center space-x-2 text-cyan-400">
+                      <UploadCloud className="w-5 h-5" />
+                      <ClipboardPaste className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium">
+                      Kéo thả ảnh vào đây, hoặc nhấn <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-cyan-300 font-mono text-[10px]">Ctrl + V</kbd> để dán ảnh trực tiếp
+                    </p>
+                    <span className="text-[10px] text-slate-500">
+                      Hỗ trợ ảnh chụp màn hình, ảnh từ Zalo, thư viện ảnh điện thoại
+                    </span>
+                  </div>
+                </div>
+
+                {/* Image Thumbnails Preview */}
                 {invoiceImages.length > 0 && (
                   <div className="flex items-center gap-2 overflow-x-auto py-2">
                     {invoiceImages.map((img, idx) => (
@@ -463,15 +578,17 @@ export default function QuickAddModal({
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
                           <button
                             type="button"
-                            onClick={() => setPreviewImageModal(img)}
+                            onClick={(e) => { e.stopPropagation(); setPreviewImageModal(img); }}
                             className="p-1 bg-cyan-600 rounded text-white text-[10px]"
+                            title="Phóng to"
                           >
                             <Eye className="w-3 h-3" />
                           </button>
                           <button
                             type="button"
-                            onClick={() => removePhoto(idx)}
+                            onClick={(e) => { e.stopPropagation(); removePhoto(idx); }}
                             className="p-1 bg-rose-600 rounded text-white text-[10px]"
+                            title="Xóa"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
