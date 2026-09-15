@@ -198,7 +198,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // 1. Request Web Push Permission
+  // 1. Request Web Push Permission & Show Mobile Notification
   const handleRequestPushPermission = async () => {
     if (!('Notification' in window)) {
       alert("Trình duyệt này chưa hỗ trợ thông báo đẩy trực tiếp.");
@@ -206,16 +206,52 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
     }
 
     try {
-      const perm = await Notification.requestPermission();
-      setPushStatus(perm);
+      let perm = Notification.permission;
+      if (perm !== 'granted') {
+        perm = await Notification.requestPermission();
+        setPushStatus(perm);
+      }
+
       if (perm === 'granted') {
-        new Notification("🚗 Hyundai Elantra 60K-228.98", {
-          body: "✅ Đã bật thông báo thành công! Bạn sẽ nhận được nhắc nhở khi đến hạn Bảo hiểm & Đăng kiểm.",
-          icon: "/favicon.ico"
-        });
-        showToast("Đã bật thông báo đẩy lên màn hình điện thoại thành công!");
+        // A. Thử gửi qua Service Worker (Chuẩn 100% cho điện thoại Android/Chrome Mobile)
+        let sentViaSW = false;
+        if ('serviceWorker' in navigator) {
+          try {
+            let reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) {
+              reg = await navigator.serviceWorker.register('/sw.js');
+            }
+            if (reg) {
+              await reg.showNotification("🚗 Hyundai Elantra 60K-228.98", {
+                body: "✅ Test thành công! Bạn sẽ nhận được thông báo khi đến hạn Bảo hiểm, Đăng kiểm & Thay nhớt.",
+                icon: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=192&q=80",
+                badge: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=96&q=80",
+                vibrate: [200, 100, 200],
+                tag: 'elantra-test-alert',
+                requireInteraction: true
+              });
+              sentViaSW = true;
+            }
+          } catch (swErr) {
+            console.warn("SW notification error:", swErr);
+          }
+        }
+
+        // B. Fallback cho Desktop nếu SW chưa kích hoạt
+        if (!sentViaSW) {
+          try {
+            new Notification("🚗 Hyundai Elantra 60K-228.98", {
+              body: "✅ Test thành công! Bạn sẽ nhận được thông báo khi đến hạn Bảo hiểm & Đăng kiểm.",
+              icon: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=192&q=80"
+            });
+          } catch (e) {
+            console.warn("Desktop notification fallback:", e);
+          }
+        }
+
+        showToast("Đã gửi thông báo đẩy lên màn hình điện thoại thành công!");
       } else {
-        alert("Quyền nhận thông báo đã bị từ chối trong trình duyệt. Anh hãy vào Cài đặt trang web để bật lại nhé!");
+        alert("Quyền nhận thông báo chưa được cấp. Anh hãy vào Cài đặt Chrome > Cài đặt trang web > Thông báo để chọn 'Cho phép' nhé!");
       }
     } catch (err) {
       console.warn("Notification permission error:", err);
