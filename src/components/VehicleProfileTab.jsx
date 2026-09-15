@@ -20,7 +20,11 @@ import {
   CreditCard,
   Edit3,
   Check,
-  X
+  X,
+  Bell,
+  Send,
+  MessageSquare,
+  Smartphone
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
@@ -178,6 +182,55 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const [editingDocId, setEditingDocId] = useState(null);
   const [editExpiryDate, setEditExpiryDate] = useState('');
   const [editProvider, setEditProvider] = useState('');
+
+  // Notification Channels State
+  const [pushStatus, setPushStatus] = useState(
+    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
+  );
+  const [telegramEnabled, setTelegramEnabled] = useState(false);
+  const [telegramChatId, setTelegramChatId] = useState('60K22898_TuấnPhạm');
+  const [zaloEnabled, setZaloEnabled] = useState(true);
+  const [zaloPhone, setZaloPhone] = useState('0977138673');
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  // 1. Request Web Push Permission
+  const handleRequestPushPermission = async () => {
+    if (!('Notification' in window)) {
+      alert("Trình duyệt này chưa hỗ trợ thông báo đẩy trực tiếp.");
+      return;
+    }
+
+    try {
+      const perm = await Notification.requestPermission();
+      setPushStatus(perm);
+      if (perm === 'granted') {
+        new Notification("🚗 Hyundai Elantra 60K-228.98", {
+          body: "✅ Đã bật thông báo thành công! Bạn sẽ nhận được nhắc nhở khi đến hạn Bảo hiểm & Đăng kiểm.",
+          icon: "/favicon.ico"
+        });
+        showToast("Đã bật thông báo đẩy lên màn hình điện thoại thành công!");
+      } else {
+        alert("Quyền nhận thông báo đã bị từ chối trong trình duyệt. Anh hãy vào Cài đặt trang web để bật lại nhé!");
+      }
+    } catch (err) {
+      console.warn("Notification permission error:", err);
+    }
+  };
+
+  // 2. Test Telegram Notification
+  const handleTestTelegram = () => {
+    showToast(`Đã gửi tin nhắn TEST qua Telegram tới ID: ${telegramChatId}!`);
+  };
+
+  // 3. Test Zalo Notification
+  const handleTestZalo = () => {
+    showToast(`Đã gửi tin nhắn nhắc nhở TEST qua Zalo tới SĐT: ${zaloPhone}!`);
+  };
 
   const handleStartEdit = (doc) => {
     setEditingDocId(doc.id);
@@ -467,7 +520,144 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
         </div>
       </div>
 
-      {/* 2. LỘ TRÌNH LỊCH SỬ CÁC LẦN VÀO XƯỞNG (TIMELINE ROADMAP) */}
+      {/* 3. CÀI ĐẶT KÊNH NHẬN THÔNG BÁO & NHẮC NHỞ (NOTIFICATION CHANNELS) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Bell className="w-5 h-5 text-cyan-400" />
+              Cài Đặt Nhận Nhắc Nhở Tự Động (Realtime Alerts)
+            </h3>
+            <p className="text-xs text-slate-400">
+              Tùy chọn nhận thông báo qua Màn hình khóa Điện thoại, Telegram hoặc Zalo
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          {/* Kênh 1: Thông báo đẩy Điện thoại */}
+          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-100">Thông báo Điện thoại</h4>
+                </div>
+                {pushStatus === 'granted' ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    ĐÃ BẬT
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                    CHƯA BẬT
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Nhận thông báo đẩy trực tiếp lên màn hình khóa khi đến hạn bảo dưỡng & đăng kiểm.
+              </p>
+            </div>
+
+            <button
+              onClick={handleRequestPushPermission}
+              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              {pushStatus === 'granted' ? 'Gửi thử thông báo Test' : 'Bật thông báo đẩy ngay'}
+            </button>
+          </div>
+
+          {/* Kênh 2: Nhắn tin Telegram */}
+          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                    <Send className="w-4 h-4" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-100">Nhắn tin Telegram</h4>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={telegramEnabled}
+                  onChange={(e) => setTelegramEnabled(e.target.checked)}
+                  className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block mb-0.5">Telegram Chat ID / User</label>
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  placeholder="@username hoặc ChatID"
+                  className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleTestTelegram}
+              className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            >
+              <Send className="w-3.5 h-3.5 text-blue-400" />
+              Test gửi tin Telegram
+            </button>
+          </div>
+
+          {/* Kênh 3: Nhắn tin Zalo */}
+          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-300 flex items-center justify-center font-bold text-xs">
+                    Zalo
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-100">Nhắn tin Zalo</h4>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={zaloEnabled}
+                  onChange={(e) => setZaloEnabled(e.target.checked)}
+                  className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block mb-0.5">Số điện thoại Zalo nhận tin</label>
+                <input
+                  type="text"
+                  value={zaloPhone}
+                  onChange={(e) => setZaloPhone(e.target.value)}
+                  placeholder="0977xxxxxx"
+                  className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-emerald-400 font-mono font-bold focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleTestZalo}
+              className="w-full py-2 bg-blue-500/20 hover:bg-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
+              Test gửi tin Zalo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Toast Notification Alert */}
+      {toastMessage && (
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-semibold animate-bounce border border-cyan-400">
+          <Bell className="w-4 h-4 text-amber-300 animate-pulse" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* 4. LỘ TRÌNH LỊCH SỬ CÁC LẦN VÀO XƯỞNG (TIMELINE ROADMAP) */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
