@@ -267,12 +267,32 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
   // 2. Test Telegram Notification
   const handleTestTelegram = () => {
-    showToast(`Đã gửi tin nhắn TEST qua Telegram tới ID: ${telegramChatId}!`);
+    const alertMessage = `🚗 *[HYUNDAI ELANTRA 60K-228.98]*\n👤 *Chủ xe:* Phạm Quốc Tuấn\n🛣️ *ODO hiện tại:* 65.023 km\n\n⚠️ *CẢNH BÁO ĐẾN HẠN:*\n• 🛢️ *Dầu nhớt động cơ:* Cần thay mới mốc 65.000 km\n• 🛡️ *Bảo hiểm TNDS:* Đến hạn 29/11/2026\n• 📋 *Đăng kiểm định kỳ:* Đến hạn 29/05/2025\n• 🏷️ *Tài khoản VETC:* Hoạt động tốt\n\n🔗 _Xem chi tiết sổ xe: https://elantra-care.vercel.app_`;
+    
+    // Copy to clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(alertMessage);
+    }
+    
+    // Open Telegram share url
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent('https://elantra-care.vercel.app')}&text=${encodeURIComponent(alertMessage)}`;
+    window.open(telegramUrl, '_blank');
+    showToast(`Đã mở Telegram và sao chép sẵn nội dung nhắc xe 60K-228.98!`);
   };
 
   // 3. Test Zalo Notification
   const handleTestZalo = () => {
-    showToast(`Đã gửi tin nhắn nhắc nhở TEST qua Zalo tới SĐT: ${zaloPhone}!`);
+    const alertMessage = `🚗 [HYUNDAI ELANTRA 60K-228.98] - NHẮC BẢO DƯỠNG & BẢO HIỂM:\n👤 Chủ xe: Phạm Quốc Tuấn\n🛣️ ODO hiện tại: 65.023 km\n\n⚠️ CẢNH BÁO:\n• 🛢️ Dầu nhớt động cơ: Quá hạn mốc 60.000 km (Cần thay ngay)\n• 🛡️ Bảo hiểm TNDS: Đến hạn 29/11/2026\n• 📋 Đăng kiểm định kỳ: Đến hạn 29/05/2025\n\n👉 Chi tiết: https://elantra-care.vercel.app`;
+    
+    // Copy to clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(alertMessage);
+    }
+    
+    const cleanPhone = (zaloPhone || '0977138673').replace(/\D/g, '');
+    const zaloUrl = `https://zalo.me/${cleanPhone}`;
+    window.open(zaloUrl, '_blank');
+    showToast(`Đã sao chép nội dung nhắc nhở! Đang mở Zalo ${cleanPhone} để dán vào tin nhắn / Cloud...`);
   };
 
   const handleStartEdit = (doc) => {
