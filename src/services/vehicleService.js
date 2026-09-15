@@ -26,10 +26,6 @@ export const formatKm = (km) => {
 };
 
 // Helper tính trạng thái bảo dưỡng kép (Drivvo Dual Trigger: ODO & Ngày)
-// Chuẩn logic:
-// - ĐỎ 'Quá hạn': Đã dùng >= 100% hoặc km còn lại <= 0 hoặc ngày còn lại <= 0
-// - VÀNG 'Sắp đến hạn': Đã dùng từ 80% - 99% hoặc km còn lại <= 500km / ngày còn lại <= 15 ngày
-// - XANH 'Tốt': Dưới 80%
 export const calculateReminderStatus = (reminder, currentOdo) => {
   const odoRemaining = reminder.next_due_odo - currentOdo;
   const today = new Date();
@@ -37,7 +33,6 @@ export const calculateReminderStatus = (reminder, currentOdo) => {
   const diffTime = dueDate.getTime() - today.getTime();
   const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  // Tính % tuổi thọ đã dùng dựa trên quãng đường
   const kmUsed = Math.max(0, currentOdo - reminder.last_service_odo);
   const percentKmUsed = Math.round((kmUsed / reminder.interval_km) * 100);
 
@@ -66,15 +61,15 @@ export const calculateReminderStatus = (reminder, currentOdo) => {
 export const vehicleService = {
   // Lấy toàn bộ dữ liệu ứng dụng
   async getAllData() {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && supabase) {
       try {
-        const { data: vehicle } = await supabase.from('vehicles').select('*').single();
-        const { data: serviceLogs } = await supabase.from('service_logs').select('*, items:service_items(*)').order('service_date', { ascending: false });
-        const { data: fuelLogs } = await supabase.from('fuel_logs').select('*').order('fuel_date', { ascending: false });
-        const { data: expenses } = await supabase.from('expense_logs').select('*').order('expense_date', { ascending: false });
-        const { data: reminders } = await supabase.from('maintenance_reminders').select('*');
+        const { data: vehicle, error: vErr } = await supabase.from('vehicles').select('*').limit(1).maybeSingle();
+        const { data: serviceLogs, error: sErr } = await supabase.from('service_logs').select('*, items:service_items(*)').order('service_date', { ascending: false });
+        const { data: fuelLogs, error: fErr } = await supabase.from('fuel_logs').select('*').order('fuel_date', { ascending: false });
+        const { data: expenses, error: eErr } = await supabase.from('expense_logs').select('*').order('expense_date', { ascending: false });
+        const { data: reminders, error: rErr } = await supabase.from('maintenance_reminders').select('*');
 
-        if (vehicle) {
+        if (vehicle && !vErr) {
           return {
             vehicle,
             serviceLogs: serviceLogs || [],
@@ -85,7 +80,7 @@ export const vehicleService = {
           };
         }
       } catch (err) {
-        console.warn('Failed to fetch from Supabase, falling back to local storage:', err);
+        console.warn('Supabase fetch error, fallback to local storage:', err);
       }
     }
 
@@ -106,7 +101,7 @@ export const vehicleService = {
     };
   },
 
-  // Thêm lần đổ xăng mới (Fuelio Full Tank Logic)
+  // Thêm lần đổ xăng mới
   async addFuelLog(logData, currentVehicle, existingFuelLogs) {
     const newOdo = Number(logData.odo);
     const liters = Number(logData.liters);
@@ -141,6 +136,28 @@ export const vehicleService = {
       notes: logData.notes || '',
     };
 
+    // Nếu có Supabase, insert vào database Supabase
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('fuel_logs').insert([{
+          vehicle_id: currentVehicle.id,
+          fuel_date: newLog.fuel_date,
+          odo: newLog.odo,
+          liters: newLog.liters,
+          price_per_liter: newLog.price_per_liter,
+          total_cost: newLog.total_cost,
+          is_full_tank: newLog.is_full_tank,
+          is_missed: newLog.is_missed,
+          gas_station: newLog.gas_station,
+          consumption_l_100km: newLog.consumption_l_100km,
+          cost_per_km: newLog.cost_per_km,
+          notes: newLog.notes,
+        }]);
+      } catch (err) {
+        console.warn('Error syncing fuel log to Supabase:', err);
+      }
+    }
+
     const updatedVehicle = {
       ...currentVehicle,
       current_odo: Math.max(currentVehicle.current_odo, newOdo),
@@ -153,7 +170,7 @@ export const vehicleService = {
     return { newLog, updatedVehicle, updatedFuelLogs };
   },
 
-  // Thêm lần bảo dưỡng mới (Drivvo Service Items & Invoice Logic)
+  // Thêm lần bảo dưỡng mới
   async addServiceLog(serviceData, currentVehicle, existingServices, existingReminders) {
     const newOdo = Number(serviceData.odo);
     const totalAmount = serviceData.items.reduce((sum, item) => sum + Number(item.total_price || 0), 0);
@@ -175,7 +192,42 @@ export const vehicleService = {
       })),
     };
 
-    // Tự động reset và cập nhật các nhắc nhở bảo dưỡng liên quan
+    // Nếu có Supabase, insert vào database Supabase
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { data: insertedService } = await supabase.from('service_logs').insert([{
+          vehicle_id: currentVehicle.id,
+          service_date: newLog.service_date,
+          odo: newLog.odo,
+          service_type: newLog.service_type,
+          garage_type: newLog.garage_type,
+          garage_name: newLog.garage_name,
+          total_amount: newLog.total_amount,
+          invoice_urls: newLog.invoice_urls,
+          notes: newLog.notes,
+        }]).select().single();
+
+        if (insertedService && insertedService.id) {
+          const itemsToInsert = serviceData.items.map(it => ({
+            service_log_id: insertedService.id,
+            item_name: it.item_name,
+            item_code: it.item_code || null,
+            category: it.category || 'ENGINE_CHASSIS',
+            subcategory: it.subcategory || null,
+            is_mandatory: it.is_mandatory !== false,
+            quantity: Number(it.quantity || 1),
+            unit_price: Number(it.unit_price || 0),
+            labor_price: Number(it.labor_price || 0),
+            total_price: Number(it.total_price || 0),
+          }));
+          await supabase.from('service_items').insert(itemsToInsert);
+        }
+      } catch (err) {
+        console.warn('Error syncing service log to Supabase:', err);
+      }
+    }
+
+    // Cập nhật nhắc nhở bảo dưỡng liên quan
     const updatedReminders = existingReminders.map(rem => {
       const matched = serviceData.items.some(item => 
         item.item_name.toLowerCase().includes(rem.item_type.toLowerCase()) ||
@@ -223,6 +275,22 @@ export const vehicleService = {
       odo: expenseData.odo ? Number(expenseData.odo) : currentVehicle.current_odo,
       notes: expenseData.notes || '',
     };
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('expense_logs').insert([{
+          vehicle_id: currentVehicle.id,
+          expense_date: newLog.expense_date,
+          category: newLog.category,
+          title: newLog.title,
+          amount: newLog.amount,
+          odo: newLog.odo,
+          notes: newLog.notes,
+        }]);
+      } catch (err) {
+        console.warn('Error syncing expense to Supabase:', err);
+      }
+    }
 
     const updatedExpenses = [newLog, ...existingExpenses];
     localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(updatedExpenses));
