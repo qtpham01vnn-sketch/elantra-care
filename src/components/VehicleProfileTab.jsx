@@ -14,9 +14,16 @@ import {
   Building, 
   ExternalLink,
   Info,
-  AlertTriangle
+  AlertTriangle,
+  FileCheck,
+  Shield,
+  CreditCard,
+  Edit3,
+  Check,
+  X
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
+import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
 
 export const REAL_GARAGE_ROADMAP = [
   {
@@ -156,8 +163,42 @@ export const REAL_GARAGE_ROADMAP = [
   }
 ];
 
+// Helper tính số ngày còn lại
+const getDaysDiff = (targetDateStr) => {
+  if (!targetDateStr) return 0;
+  const target = new Date(targetDateStr);
+  const today = new Date();
+  const diffTime = target.getTime() - today.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
 export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const [filterType, setFilterType] = useState('ALL');
+  const [documents, setDocuments] = useState(INITIAL_LEGAL_DOCUMENTS);
+  const [editingDocId, setEditingDocId] = useState(null);
+  const [editExpiryDate, setEditExpiryDate] = useState('');
+  const [editProvider, setEditProvider] = useState('');
+
+  const handleStartEdit = (doc) => {
+    setEditingDocId(doc.id);
+    setEditExpiryDate(doc.expiry_date || '');
+    setEditProvider(doc.provider || doc.station || '');
+  };
+
+  const handleSaveEdit = (docId) => {
+    setDocuments(prev => prev.map(d => {
+      if (d.id === docId) {
+        return {
+          ...d,
+          expiry_date: editExpiryDate,
+          provider: editProvider,
+          station: editProvider
+        };
+      }
+      return d;
+    }));
+    setEditingDocId(null);
+  };
 
   const filteredRoadmap = REAL_GARAGE_ROADMAP.filter(item => {
     if (filterType === 'ALL') return true;
@@ -263,6 +304,166 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 2. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Shield className="w-5 h-5 text-amber-400" />
+              Thời Hạn Bảo Hiểm, Đăng Kiểm & VETC
+            </h3>
+            <p className="text-xs text-slate-400">
+              Tự động cảnh báo đếm ngược ngày hết hạn để tránh bị phạt và bảo vệ quyền lợi bảo hiểm
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {documents.map((doc) => {
+            const daysRemaining = getDaysDiff(doc.expiry_date);
+            const isEditing = editingDocId === doc.id;
+            const isExpired = daysRemaining <= 0;
+            const isDueSoon = daysRemaining > 0 && daysRemaining <= (doc.alert_days || 30);
+
+            return (
+              <div 
+                key={doc.id}
+                className={`p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                  isExpired 
+                    ? 'bg-rose-950/20 border-rose-500/40 hover:border-rose-500/60' 
+                    : isDueSoon 
+                      ? 'bg-amber-950/20 border-amber-500/40 hover:border-amber-500/60'
+                      : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                      doc.type === 'INSURANCE_TNDS' ? 'bg-blue-500/20 text-blue-400' :
+                      doc.type === 'INSURANCE_BODY' ? 'bg-amber-500/20 text-amber-400' :
+                      doc.type === 'REGISTRY_INSPECTION' ? 'bg-emerald-500/20 text-emerald-400' :
+                      doc.type === 'TOLL_VETC' ? 'bg-cyan-500/20 text-cyan-400' :
+                      'bg-purple-500/20 text-purple-400'
+                    }`}>
+                      {doc.type === 'INSURANCE_TNDS' && <FileCheck className="w-5 h-5" />}
+                      {doc.type === 'INSURANCE_BODY' && <ShieldCheck className="w-5 h-5" />}
+                      {doc.type === 'REGISTRY_INSPECTION' && <FileText className="w-5 h-5" />}
+                      {doc.type === 'TOLL_VETC' && <CreditCard className="w-5 h-5" />}
+                      {doc.type === 'FACTORY_WARRANTY' && <Shield className="w-5 h-5" />}
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-100">{doc.title}</h4>
+                      <p className="text-[11px] text-slate-400 truncate max-w-[200px]">
+                        {doc.provider || doc.station}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Expiration Countdown Badge */}
+                  {doc.expiry_date && (
+                    <div className="text-right">
+                      {isExpired ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
+                          ĐÃ HẾT HẠN
+                        </span>
+                      ) : isDueSoon ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                          CÒN {daysRemaining} NGÀY
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          CÒN {daysRemaining} NGÀY
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Edit Form or Detail Display */}
+                {isEditing ? (
+                  <div className="space-y-2 pt-2 border-t border-slate-800">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Đơn vị cấp / Trung tâm</label>
+                      <input 
+                        type="text"
+                        value={editProvider}
+                        onChange={(e) => setEditProvider(e.target.value)}
+                        className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Ngày hết hạn (YYYY-MM-DD)</label>
+                      <input 
+                        type="date"
+                        value={editExpiryDate}
+                        onChange={(e) => setEditExpiryDate(e.target.value)}
+                        className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-1.5 pt-1">
+                      <button 
+                        onClick={() => setEditingDocId(null)}
+                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
+                      >
+                        Hủy
+                      </button>
+                      <button 
+                        onClick={() => handleSaveEdit(doc.id)}
+                        className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
+                      >
+                        <Check className="w-3 h-3" /> Lưu
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 pt-2 border-t border-slate-800/80 text-xs text-slate-300">
+                    {doc.expiry_date && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400">Hạn hết hiệu lực:</span>
+                        <span className="font-mono font-bold text-slate-200">{doc.expiry_date}</span>
+                      </div>
+                    )}
+                    
+                    {doc.contract_no && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400">Số HĐ / Mã:</span>
+                        <span className="font-mono text-[11px] text-slate-300">{doc.contract_no}</span>
+                      </div>
+                    )}
+
+                    {doc.current_balance !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400">Số dư VETC:</span>
+                        <strong className="text-emerald-400 font-mono">{formatCurrency(doc.current_balance)}</strong>
+                      </div>
+                    )}
+
+                    {doc.coverage_terms && (
+                      <div className="text-[11px] text-slate-400 pt-0.5">
+                        <span className="text-amber-300 font-medium">Quyền lợi: </span>
+                        {doc.coverage_terms.join(' • ')}
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-1 text-[11px]">
+                      <span className="text-slate-500 italic truncate max-w-[240px]">{doc.note}</span>
+                      <button 
+                        onClick={() => handleStartEdit(doc)}
+                        className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                        title="Chỉnh sửa ngày hết hạn từ giấy tờ thực tế"
+                      >
+                        <Edit3 className="w-3 h-3" /> Sửa ngày
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
