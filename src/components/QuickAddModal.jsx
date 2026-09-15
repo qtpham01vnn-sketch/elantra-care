@@ -14,7 +14,8 @@ import {
   Eye,
   UploadCloud,
   ClipboardPaste,
-  Info
+  Info,
+  Folder
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -71,32 +72,91 @@ export default function QuickAddModal({
   const [expenseAmount, setExpenseAmount] = useState('500000');
   const [expenseNotes, setExpenseNotes] = useState('');
 
-  // 1. TÍNH NĂNG DÁN ẢNH TỪ CLIPBOARD (Ctrl + V)
+  // 1. TÍNH NĂNG DÁN ẢNH TỪ CLIPBOARD (Ctrl + V và Nút bấm)
+  const processImageFile = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setInvoiceImages(prev => [...prev, reader.result]);
+    };
+    reader.readAsDataURL(file);
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
     const handlePaste = (e) => {
+      // Don't intercept if typing inside an input or textarea
+      const targetTag = e.target?.tagName?.toLowerCase();
+      if (targetTag === 'input' || targetTag === 'textarea') {
+        // If it contains image files anyway, process it
+        if (!e.clipboardData?.files?.length && !e.clipboardData?.items?.some(it => it.type.startsWith('image/'))) {
+          return;
+        }
+      }
+
       const clipboardData = e.clipboardData;
       if (!clipboardData) return;
 
-      const items = clipboardData.items;
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setInvoiceImages(prev => [...prev, reader.result]);
-            };
-            reader.readAsDataURL(file);
+      let foundImage = false;
+
+      // Check files in clipboard
+      if (clipboardData.files && clipboardData.files.length > 0) {
+        Array.from(clipboardData.files).forEach(file => {
+          if (file.type.startsWith('image/')) {
+            processImageFile(file);
+            foundImage = true;
           }
-        }
+        });
+      }
+
+      // Check items in clipboard (e.g. copied from Zalo/Browser)
+      if (!foundImage && clipboardData.items && clipboardData.items.length > 0) {
+        Array.from(clipboardData.items).forEach(item => {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            if (file) {
+              processImageFile(file);
+              foundImage = true;
+            }
+          }
+        });
+      }
+
+      if (foundImage) {
+        e.preventDefault();
       }
     };
 
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
   }, [isOpen]);
+
+  // Nút bấm dán ảnh trực tiếp từ Clipboard (hỗ trợ Zalo/Screenshot 1-click)
+  const handlePasteFromClipboardButton = async () => {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        alert("Trình duyệt chưa hỗ trợ đọc trực tiếp qua nút bấm. Bạn chỉ cần nhấn phím 'Ctrl + V' trên bàn phím là ảnh sẽ được dán vào ngay nhé!");
+        return;
+      }
+      const clipboardItems = await navigator.clipboard.read();
+      let hasImage = false;
+      for (const item of clipboardItems) {
+        const imageType = item.types.find(type => type.startsWith('image/'));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          processImageFile(blob);
+          hasImage = true;
+        }
+      }
+      if (!hasImage) {
+        alert("Chưa tìm thấy ảnh trong Clipboard! Bạn hãy chuột phải vào ảnh trong Zalo chọn 'Copy ảnh' (hoặc nhấn Ctrl + C) rồi bấm lại nút này nhé!");
+      }
+    } catch (err) {
+      console.warn("Clipboard access warning:", err);
+      alert("Bạn có thể bấm trực tiếp tổ hợp phím 'Ctrl + V' trên bàn phím để dán ảnh Zalo vào form nhé!");
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -115,26 +175,29 @@ export default function QuickAddModal({
     e.preventDefault();
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files || []);
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setInvoiceImages(prev => [...prev, reader.result]);
-        };
-        reader.readAsDataURL(file);
+    if (files.length > 0) {
+      files.forEach(file => {
+        if (file.type.startsWith('image/')) {
+          processImageFile(file);
+        }
+      });
+    } else {
+      // Dragging an image directly from another web/app
+      const html = e.dataTransfer.getData('text/html');
+      if (html) {
+        const match = html.match(/src=["'](.*?)["']/);
+        if (match && match[1]) {
+          setInvoiceImages(prev => [...prev, match[1]]);
+        }
       }
-    });
+    }
   };
 
   // 3. CHỌN ẢNH TỪ FILE FOLDER / CAMERA
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files || []);
     files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setInvoiceImages(prev => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file);
     });
   };
 
@@ -520,19 +583,32 @@ export default function QuickAddModal({
               </div>
 
               {/* Upload & Snapshot Invoice Photos + Drag & Drop + Ctrl+V */}
-              <div className="space-y-2 pt-1 border-t border-slate-800">
+              <div className="space-y-2.5 pt-2 border-t border-slate-800">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <Camera className="w-4 h-4 text-cyan-400" />
-                    Ảnh chụp hóa đơn / Phiếu báo giá ({invoiceImages.length} ảnh)
+                    Ảnh hóa đơn / Phiếu báo giá ({invoiceImages.length} ảnh)
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-xs px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-semibold flex items-center gap-1"
-                  >
-                    <Plus className="w-3 h-3" /> Chọn từ thư mục
-                  </button>
+                  
+                  {/* Action Buttons in Header */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={handlePasteFromClipboardButton}
+                      className="text-[11px] px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg font-bold flex items-center gap-1 transition-all shadow-sm active:scale-95"
+                      title="Dán trực tiếp ảnh vừa copy từ Zalo hoặc chụp màn hình"
+                    >
+                      <ClipboardPaste className="w-3.5 h-3.5" /> Dán từ Zalo (Ctrl+V)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg font-medium flex items-center gap-1 transition-all"
+                    >
+                      <Plus className="w-3 h-3" /> File máy
+                    </button>
+                  </div>
+                  
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -543,28 +619,48 @@ export default function QuickAddModal({
                   />
                 </div>
 
-                {/* Drag and Drop Zone with Paste Support */}
+                {/* Drag and Drop Zone with Clear Action Buttons */}
                 <div
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                  className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${
                     isDragging 
                       ? 'border-cyan-400 bg-cyan-500/10' 
-                      : 'border-slate-700 hover:border-slate-600 bg-slate-950/40'
+                      : 'border-slate-700 bg-slate-950/50 hover:border-slate-600'
                   }`}
                 >
-                  <div className="flex flex-col items-center justify-center space-y-1.5">
+                  <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="flex items-center space-x-2 text-cyan-400">
-                      <UploadCloud className="w-5 h-5" />
-                      <ClipboardPaste className="w-4 h-4 text-amber-400" />
+                      <UploadCloud className="w-6 h-6 text-cyan-400 animate-bounce" />
+                      <ClipboardPaste className="w-5 h-5 text-amber-400" />
                     </div>
+                    
                     <p className="text-xs text-slate-300 font-medium">
-                      Kéo thả ảnh vào đây, hoặc nhấn <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-cyan-300 font-mono text-[10px]">Ctrl + V</kbd> để dán ảnh trực tiếp
+                      Kéo thả file ảnh vào đây, hoặc nhấn phím <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-600 rounded text-cyan-300 font-mono text-[11px] font-bold">Ctrl + V</kbd>
                     </p>
+
+                    <div className="flex items-center justify-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handlePasteFromClipboardButton}
+                        className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                      >
+                        <ClipboardPaste className="w-3.5 h-3.5 text-amber-400" />
+                        Bấm để dán ảnh đã copy từ Zalo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all"
+                      >
+                        <Folder className="w-3.5 h-3.5 text-slate-400" />
+                        Chọn ảnh từ máy
+                      </button>
+                    </div>
+
                     <span className="text-[10px] text-slate-500">
-                      Hỗ trợ ảnh chụp màn hình, ảnh từ Zalo, thư viện ảnh điện thoại
+                      💡 Mẹo: Chuột phải vào ảnh trong Zalo → chọn &ldquo;Copy ảnh&rdquo; → Bấm nút trên hoặc ấn Ctrl + V
                     </span>
                   </div>
                 </div>
