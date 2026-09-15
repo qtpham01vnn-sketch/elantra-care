@@ -30,6 +30,37 @@ export default function App() {
   const [fuelLogs, setFuelLogs] = useState(INITIAL_FUEL_LOGS);
   const [expenses, setExpenses] = useState(INITIAL_EXPENSE_LOGS);
   const [reminders, setReminders] = useState(INITIAL_REMINDERS);
+  const [notificationBanner, setNotificationBanner] = useState(null);
+
+  // Listen to messages from Service Worker when a user clicks push notification
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handleSwMessage = (event) => {
+        if (event.data && event.data.type === 'NOTIFICATION_ACTION') {
+          setActiveTab('reminders');
+          setNotificationBanner({
+            title: event.data.title || '🚗 Hyundai Elantra 60K-228.98',
+            message: 'Đã mở từ thông báo điện thoại! Dưới đây là các hạng mục bảo dưỡng & bảo hiểm cần chú ý.'
+          });
+          setTimeout(() => setNotificationBanner(null), 7000);
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
+      return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+    }
+  }, []);
+
+  // Check URL query params for notification click redirect
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('notif=')) {
+      setActiveTab('reminders');
+      setNotificationBanner({
+        title: '🚗 Hyundai Elantra 60K-228.98',
+        message: 'Đã mở từ thông báo điện thoại! Dưới đây là các hạng mục bảo dưỡng & bảo hiểm cần chú ý.'
+      });
+      setTimeout(() => setNotificationBanner(null), 7000);
+    }
+  }, []);
 
   // Load Data on Mount from LocalStorage or Supabase
   useEffect(() => {
@@ -174,6 +205,31 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Real-time Push Notification Triggered Banner */}
+      {notificationBanner && (
+        <div className="fixed top-4 left-4 right-4 z-50 animate-in slide-in-from-top duration-300 max-w-md mx-auto">
+          <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white p-4 rounded-2xl shadow-2xl border border-blue-400/40 flex items-start gap-3 backdrop-blur-md">
+            <div className="p-2.5 bg-white/20 rounded-xl shrink-0 mt-0.5 animate-bounce">
+              <span className="text-xl">🔔</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-bold text-sm text-yellow-300 flex items-center gap-1.5">
+                {notificationBanner.title}
+              </h4>
+              <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                {notificationBanner.message}
+              </p>
+            </div>
+            <button 
+              onClick={() => setNotificationBanner(null)}
+              className="p-1.5 hover:bg-white/10 rounded-lg text-blue-200 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Floating Bottom Navigation */}
       <BottomNav 
