@@ -187,8 +187,14 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const [pushStatus, setPushStatus] = useState(
     typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
   );
-  const [telegramEnabled, setTelegramEnabled] = useState(false);
-  const [telegramChatId, setTelegramChatId] = useState('60K22898_TuấnPhạm');
+  const [telegramEnabled, setTelegramEnabled] = useState(true);
+  const [telegramChatId, setTelegramChatId] = useState(() => 
+    typeof window !== 'undefined' ? localStorage.getItem('elantra_telegram_chat_id') || '' : ''
+  );
+  const [telegramBotToken, setTelegramBotToken] = useState(() => 
+    typeof window !== 'undefined' ? localStorage.getItem('elantra_telegram_bot_token') || '' : ''
+  );
+  const [showTelegramConfig, setShowTelegramConfig] = useState(false);
   const [zaloEnabled, setZaloEnabled] = useState(true);
   const [zaloPhone, setZaloPhone] = useState('0977138673');
   const [toastMessage, setToastMessage] = useState(null);
@@ -196,6 +202,16 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleSaveTelegramConfig = (chatId, token) => {
+    setTelegramChatId(chatId);
+    setTelegramBotToken(token);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('elantra_telegram_chat_id', chatId);
+      localStorage.setItem('elantra_telegram_bot_token', token);
+    }
+    showToast("Đã lưu cấu hình Telegram Bot thành công!");
   };
 
   // 1. Request Web Push Permission & Show Mobile Notification
@@ -265,19 +281,43 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
     }
   };
 
-  // 2. Test Telegram Notification
-  const handleTestTelegram = () => {
+  // 2. Test Telegram Notification (Direct API or Share Fallback)
+  const handleTestTelegram = async () => {
     const alertMessage = `🚗 *[HYUNDAI ELANTRA 60K-228.98]*\n👤 *Chủ xe:* Phạm Quốc Tuấn\n🛣️ *ODO hiện tại:* 65.023 km\n\n⚠️ *CẢNH BÁO ĐẾN HẠN:*\n• 🛢️ *Dầu nhớt động cơ:* Cần thay mới mốc 65.000 km\n• 🛡️ *Bảo hiểm TNDS:* Đến hạn 29/11/2026\n• 📋 *Đăng kiểm định kỳ:* Đến hạn 29/05/2025\n• 🏷️ *Tài khoản VETC:* Hoạt động tốt\n\n🔗 _Xem chi tiết sổ xe: https://elantra-care.vercel.app_`;
-    
-    // Copy to clipboard
+
+    // A. Nếu có Bot Token & Chat ID -> Gửi trực tiếp qua Telegram API
+    if (telegramBotToken && telegramChatId) {
+      try {
+        showToast("Đang bắn tin trực tiếp qua Telegram Bot...");
+        const res = await fetch(`https://api.telegram.org/bot${telegramBotToken.trim()}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: telegramChatId.trim(),
+            text: alertMessage,
+            parse_mode: 'Markdown'
+          })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          showToast("🎉 THÀNH CÔNG! Bot đã tự động gửi tin nhắn đến Telegram của anh!");
+          return;
+        } else {
+          console.warn("Telegram API error:", result);
+          alert(`Lỗi Telegram: ${result.description}\n(Hãy đảm bảo Chat ID đúng số và anh đã ấn /start với Bot trước đó).`);
+        }
+      } catch (err) {
+        console.warn("Telegram fetch error:", err);
+      }
+    }
+
+    // B. Nếu chưa cài Bot Token -> Mở Telegram Share & copy
     if (navigator.clipboard) {
       navigator.clipboard.writeText(alertMessage);
     }
-    
-    // Open Telegram share url
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent('https://elantra-care.vercel.app')}&text=${encodeURIComponent(alertMessage)}`;
     window.open(telegramUrl, '_blank');
-    showToast(`Đã mở Telegram và sao chép sẵn nội dung nhắc xe 60K-228.98!`);
+    showToast(`Đã copy nội dung và mở Telegram! (Hãy bấm cài đặt Bot Token để tự động gửi không cần bấm Share).`);
   };
 
   // 3. Test Zalo Notification
@@ -634,13 +674,18 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
           {/* Kênh 2: Nhắn tin Telegram */}
           <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
                     <Send className="w-4 h-4" />
                   </div>
-                  <h4 className="text-xs font-bold text-slate-100">Nhắn tin Telegram</h4>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-100">Nhắn tin Telegram</h4>
+                    <span className="text-[10px] text-blue-400 font-medium">
+                      {telegramBotToken && telegramChatId ? '🟢 Bot tự động sẵn sàng' : '🟡 Chế độ Share 1 chạm'}
+                    </span>
+                  </div>
                 </div>
                 <input
                   type="checkbox"
@@ -651,15 +696,54 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               </div>
 
               <div>
-                <label className="text-[10px] text-slate-400 block mb-0.5">Telegram Chat ID / User</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] text-slate-400">Telegram Chat ID (dạng số)</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowTelegramConfig(!showTelegramConfig)}
+                    className="text-[10px] text-cyan-400 hover:text-cyan-300 underline"
+                  >
+                    {showTelegramConfig ? 'Thu gọn' : '⚙️ Đấu nối Bot'}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={telegramChatId}
-                  onChange={(e) => setTelegramChatId(e.target.value)}
-                  placeholder="@username hoặc ChatID"
-                  className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none"
+                  onChange={(e) => {
+                    setTelegramChatId(e.target.value);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('elantra_telegram_chat_id', e.target.value);
+                    }
+                  }}
+                  placeholder="VD: 543219876 (tìm trong @userinfobot)"
+                  className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500"
                 />
               </div>
+
+              {/* Collapsible Bot Token Config */}
+              {showTelegramConfig && (
+                <div className="p-2.5 bg-blue-950/40 border border-blue-800/60 rounded-xl space-y-2 animate-in fade-in duration-200">
+                  <div>
+                    <label className="text-[10px] text-blue-300 block mb-0.5">Bot Token (từ @BotFather)</label>
+                    <input
+                      type="text"
+                      value={telegramBotToken}
+                      onChange={(e) => {
+                        setTelegramBotToken(e.target.value);
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('elantra_telegram_bot_token', e.target.value);
+                        }
+                      }}
+                      placeholder="VD: 7123456789:AAHk..."
+                      className="w-full px-2 py-1 bg-slate-950 border border-blue-700/60 rounded-lg text-[11px] text-yellow-300 font-mono focus:outline-none"
+                    />
+                  </div>
+                  <div className="text-[10px] text-slate-400 leading-tight space-y-0.5">
+                    <p>💡 <b>Cách lấy Chat ID:</b> Nhắn <code className="text-cyan-300">/start</code> vào bot <b className="text-white">@userinfobot</b> trên Telegram.</p>
+                    <p>💡 Khi có Token + Chat ID, hệ thống sẽ <b>tự động bắn tin thẳng vào Telegram</b> không cần bấm Share.</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
@@ -667,7 +751,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
             >
               <Send className="w-3.5 h-3.5 text-blue-400" />
-              Test gửi tin Telegram
+              {telegramBotToken && telegramChatId ? '🚀 Bắn tin trực tiếp qua Bot' : 'Test gửi qua Telegram'}
             </button>
           </div>
 
@@ -679,7 +763,10 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
                   <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-300 flex items-center justify-center font-bold text-xs">
                     Zalo
                   </div>
-                  <h4 className="text-xs font-bold text-slate-100">Nhắn tin Zalo</h4>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-100">Nhắn tin Zalo</h4>
+                    <span className="text-[10px] text-slate-400">Lưu nhanh Cloud / Gửi tin</span>
+                  </div>
                 </div>
                 <input
                   type="checkbox"
@@ -696,17 +783,21 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
                   value={zaloPhone}
                   onChange={(e) => setZaloPhone(e.target.value)}
                   placeholder="0977xxxxxx"
-                  className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-emerald-400 font-mono font-bold focus:outline-none"
+                  className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-emerald-400 font-mono font-bold focus:outline-none"
                 />
+              </div>
+
+              <div className="p-2 bg-slate-950/60 rounded-lg border border-slate-800/80 text-[10px] text-slate-400 leading-tight">
+                ℹ️ Zalo cá nhân không mở API tự bắn tin ngầm. Bấm nút dưới để <b>tự động copy & mở Zalo</b> dán vào Cloud của tôi.
               </div>
             </div>
 
             <button
               onClick={handleTestZalo}
-              className="w-full py-2 bg-blue-500/20 hover:bg-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+              className="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
-              Test gửi tin Zalo
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+              Copy & Mở Zalo 0977138673
             </button>
           </div>
         </div>
