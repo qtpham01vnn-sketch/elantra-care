@@ -14,7 +14,8 @@ import {
   INITIAL_SERVICE_LOGS, 
   INITIAL_FUEL_LOGS, 
   INITIAL_EXPENSE_LOGS, 
-  INITIAL_REMINDERS 
+  INITIAL_REMINDERS,
+  INITIAL_LEGAL_DOCUMENTS 
 } from './data/mockData';
 
 export default function App() {
