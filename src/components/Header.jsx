@@ -3,18 +3,22 @@ import { ShieldCheck, Database, RefreshCw, Car, AlertTriangle, Printer } from 'l
 import { isSupabaseConfigured } from '../services/supabaseClient';
 import { formatKm } from '../services/vehicleService';
 
-export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCount }) {
+export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCount, onNavigateToProfile }) {
   return (
     <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg print:hidden">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
-        {/* Left: Vehicle Quick Info */}
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+        {/* Left: Vehicle Quick Info (Click to open Profile) */}
+        <div 
+          onClick={onNavigateToProfile}
+          className="flex items-center space-x-3 cursor-pointer group p-1 -ml-1 rounded-xl hover:bg-slate-800/60 transition-all"
+          title="Bấm để xem Hồ sơ xe & Lộ trình vào xưởng chi tiết"
+        >
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
             <Car className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-bold text-slate-100 text-sm md:text-base tracking-wide">
+              <span className="font-bold text-slate-100 text-sm md:text-base tracking-wide group-hover:text-cyan-300 transition-colors">
                 {vehicle.make} {vehicle.model}
               </span>
               <span className="text-xs px-2 py-0.5 rounded-md font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
@@ -22,7 +26,7 @@ export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCou
               </span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-slate-400">
-              <span className="text-slate-300 font-medium">ODO: {formatKm(vehicle.current_odo)}</span>
+              <span className="text-slate-300 font-medium font-mono">ODO: {formatKm(vehicle.current_odo)}</span>
               <span>•</span>
               <span>{vehicle.year} ({vehicle.trim})</span>
             </div>

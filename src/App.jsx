@@ -5,6 +5,7 @@ import DashboardTab from './components/DashboardTab';
 import TimelineTab from './components/TimelineTab';
 import ReportsTab from './components/ReportsTab';
 import RemindersTab from './components/RemindersTab';
+import VehicleProfileTab from './components/VehicleProfileTab';
 import QuickAddModal from './components/QuickAddModal';
 import ExportLogbookModal from './components/ExportLogbookModal';
 import { vehicleService, calculateReminderStatus } from './services/vehicleService';
@@ -50,7 +51,7 @@ export default function App() {
 
   // Reset to Realistic Mock Data
   const handleReset = () => {
-    if (window.confirm('Khôi phục lại toàn bộ dữ liệu mẫu thực tế của xe Hyundai Elantra 2023 (60K-228.98) tại mốc 65.010 km?')) {
+    if (window.confirm('Khôi phục lại toàn bộ dữ liệu mẫu thực tế của xe Hyundai Elantra 2022 (60K-228.98) tại mốc 65.023 km?')) {
       const defaultData = vehicleService.resetToDefault();
       setVehicle(defaultData.vehicle);
       setServiceLogs(defaultData.serviceLogs);
@@ -112,6 +113,7 @@ export default function App() {
         onReset={handleReset} 
         onOpenExport={() => setIsExportOpen(true)}
         activeAlertsCount={activeAlertsCount} 
+        onNavigateToProfile={() => setActiveTab('profile')}
       />
 
       {/* Main View Area */}
@@ -124,6 +126,13 @@ export default function App() {
             expenses={expenses}
             reminders={reminders}
             onNavigateTab={setActiveTab}
+            onOpenQuickAdd={openQuickAddWithMode}
+          />
+        )}
+
+        {activeTab === 'profile' && (
+          <VehicleProfileTab 
+            vehicle={vehicle}
             onOpenQuickAdd={openQuickAddWithMode}
           />
         )}

@@ -1,12 +1,12 @@
 import React from 'react';
-import { LayoutDashboard, History, Plus, BarChart3, BellRing } from 'lucide-react';
+import { LayoutDashboard, History, Plus, BarChart3, BellRing, ShieldCheck } from 'lucide-react';
 
 export default function BottomNav({ activeTab, setActiveTab, onOpenQuickAdd, alertCount }) {
   const navItems = [
     { id: 'dashboard', label: 'Sức khỏe', icon: LayoutDashboard },
-    { id: 'timeline', label: 'Nhật ký', icon: History },
+    { id: 'profile', label: 'Hồ sơ xe', icon: ShieldCheck },
     { id: 'quick_add', label: 'Thêm', icon: Plus, isAction: true },
-    { id: 'reports', label: 'Báo cáo', icon: BarChart3 },
+    { id: 'timeline', label: 'Nhật ký', icon: History },
     { id: 'reminders', label: 'Mốc hạn', icon: BellRing, badge: alertCount },
   ];
 
