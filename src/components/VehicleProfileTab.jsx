@@ -285,15 +285,24 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const handleTestTelegram = async () => {
     const alertMessage = `🚗 *[HYUNDAI ELANTRA 60K-228.98]*\n👤 *Chủ xe:* Phạm Quốc Tuấn\n🛣️ *ODO hiện tại:* 65.023 km\n\n⚠️ *CẢNH BÁO ĐẾN HẠN:*\n• 🛢️ *Dầu nhớt động cơ:* Cần thay mới mốc 65.000 km\n• 🛡️ *Bảo hiểm TNDS:* Đến hạn 29/11/2026\n• 📋 *Đăng kiểm định kỳ:* Đến hạn 29/05/2025\n• 🏷️ *Tài khoản VETC:* Hoạt động tốt\n\n🔗 _Xem chi tiết sổ xe: https://elantra-care.vercel.app_`;
 
-    // A. Nếu có Bot Token & Chat ID -> Gửi trực tiếp qua Telegram API
+    // A. Kiểm tra nếu có Bot Token & Chat ID -> Gửi trực tiếp qua Telegram API
     if (telegramBotToken && telegramChatId) {
+      const cleanToken = telegramBotToken.trim();
+      const cleanChatId = telegramChatId.trim();
+
+      // Kiểm tra định dạng Token (Token bắt buộc phải có dấu : ngăn cách số và chữ)
+      if (!cleanToken.includes(':')) {
+        alert("⚠️ Ô 'Bot Token' chưa đúng định dạng!\n\n• Chat ID của anh là: " + cleanChatId + " (Đã đúng ✅)\n• Còn 'Bot Token' là chìa khóa của Bot do @BotFather cấp (dạng 7123456789:AAHk... có dấu hai chấm : ở giữa).\n\nAnh hãy mở Telegram tìm @BotFather và gửi /newbot để lấy mã Token dán vào nhé!");
+        return;
+      }
+
       try {
         showToast("Đang bắn tin trực tiếp qua Telegram Bot...");
-        const res = await fetch(`https://api.telegram.org/bot${telegramBotToken.trim()}/sendMessage`, {
+        const res = await fetch(`https://api.telegram.org/bot${cleanToken}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: telegramChatId.trim(),
+            chat_id: cleanChatId,
             text: alertMessage,
             parse_mode: 'Markdown'
           })
@@ -304,7 +313,12 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
           return;
         } else {
           console.warn("Telegram API error:", result);
-          alert(`Lỗi Telegram: ${result.description}\n(Hãy đảm bảo Chat ID đúng số và anh đã ấn /start với Bot trước đó).`);
+          if (result.description && result.description.includes('chat not found')) {
+            alert(`⚠️ Bot chưa gửi được tin vì anh chưa bấm START với Bot!\n\nAnh hãy mở con Bot của anh trên Telegram và bấm nút /start một lần, sau đó quay lại đây bấm Gửi lại nhé!`);
+          } else {
+            alert(`Lỗi Telegram: ${result.description}\n(Hãy kiểm tra lại Bot Token từ @BotFather hoặc Chat ID).`);
+          }
+          return;
         }
       } catch (err) {
         console.warn("Telegram fetch error:", err);
