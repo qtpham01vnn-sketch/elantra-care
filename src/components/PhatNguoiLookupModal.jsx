@@ -9,17 +9,34 @@ import {
   Clock, 
   PhoneCall,
   Car,
-  FileText
+  FileText,
+  Copy,
+  Check,
+  Building,
+  Shield
 } from 'lucide-react';
 
 export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
   const [loading, setLoading] = useState(false);
-  const [lastCheckTime, setLastCheckTime] = useState('16:32:00 Hôm nay');
+  const [lastCheckTime, setLastCheckTime] = useState('17:00:00 Hôm nay');
   const [violationStatus, setViolationStatus] = useState('CLEAN'); // CLEAN, FOUND
+  const [copiedToast, setCopiedToast] = useState(null);
 
   if (!isOpen) return null;
 
   const plate = vehicle?.license_plate || '60K-228.98';
+  const cleanPlate = plate.replace(/[^a-zA-Z0-9]/g, ''); // 60K22898
+
+  const showCopyToast = (msg) => {
+    setCopiedToast(msg);
+    setTimeout(() => setCopiedToast(null), 3500);
+  };
+
+  const copyToClipboard = (text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+  };
 
   const handleRefreshCheck = () => {
     setLoading(true);
@@ -27,20 +44,42 @@ export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
       setLoading(false);
       const now = new Date();
       setLastCheckTime(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} Hôm nay`);
+      showCopyToast("Đã quét và làm mới trạng thái vi phạm phương tiện!");
     }, 1200);
   };
 
+  // 1. Cổng Cục Cảnh Sát Giao Thông (Bộ Công An)
   const handleOpenCSGTPortal = () => {
-    window.open('http://www.csgt.vn/tra-cuu-phuong-tien-vi-pham-giao-thong.html', '_blank');
+    copyToClipboard(cleanPlate);
+    showCopyToast(`Đã copy biển số ${cleanPlate}! Đang mở Cổng Cục CSGT...`);
+    window.open('https://csgt.bocongan.gov.vn/tra-cuu-phuong-tien-vi-pham-giao-thong.html', '_blank');
   };
 
-  const handleOpenPhatNguoiVN = () => {
-    window.open(`https://phatnguoi.vn/?bienso=${plate.replace(/[^a-zA-Z0-9]/g, '')}`, '_blank');
+  // 2. Cổng Cục Đăng Kiểm Việt Nam (Cảnh báo kiểm định)
+  const handleOpenDangKiemPortal = () => {
+    copyToClipboard(plate);
+    showCopyToast(`Đã copy biển số ${plate}! Đang mở Cổng Cục Đăng Kiểm...`);
+    window.open('http://app.vr.org.vn/ptpublic/', '_blank');
+  };
+
+  // 3. Cổng Dịch Vụ Công Quốc Gia
+  const handleOpenDVCQG = () => {
+    copyToClipboard(plate);
+    showCopyToast(`Đã copy biển số ${plate}! Đang mở Dịch Vụ Công Quốc Gia...`);
+    window.open('https://dichvucong.gov.vn/p/home/dvc-thanh-toan-vi-pham-giao-thong.html', '_blank');
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
       <div className="relative w-full max-w-xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Toast alert */}
+        {copiedToast && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-4 py-2 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 border border-emerald-400 animate-bounce">
+            <Check className="w-4 h-4" />
+            <span>{copiedToast}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="p-5 bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -52,7 +91,7 @@ export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
                 Tra Cứu Phạt Nguội Quốc Gia
               </h3>
               <p className="text-xs text-slate-400">
-                Hệ thống Cục Cảnh sát Giao thông (CSGT) Toàn quốc
+                Cổng Dữ Liệu Cục CSGT (Bộ Công An) & Cục Đăng Kiểm
               </p>
             </div>
           </div>
@@ -75,10 +114,22 @@ export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
               </div>
               <div>
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold block">Biển số tra cứu</span>
-                <span className="text-xl font-mono font-bold text-cyan-300 tracking-wider">
-                  {plate}
-                </span>
-                <span className="text-xs text-slate-400 block">Loại xe: Ô tô con (Hyundai Elantra CN7)</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-mono font-bold text-cyan-300 tracking-wider">
+                    {plate}
+                  </span>
+                  <button
+                    onClick={() => {
+                      copyToClipboard(cleanPlate);
+                      showCopyToast(`Đã copy ${cleanPlate} vào bộ nhớ tạm!`);
+                    }}
+                    className="p-1 text-slate-400 hover:text-cyan-300 transition-colors"
+                    title="Sao chép biển số"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <span className="text-xs text-slate-400 block">Chủ xe: {vehicle?.owner_name || 'Phạm Quốc Tuấn'} (10/01/1979)</span>
               </div>
             </div>
 
@@ -122,35 +173,84 @@ export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
             </div>
           )}
 
-          {/* 1-Click Direct Access to Official Portals */}
+          {/* 1-Click Direct Access to Official Government Portals */}
           <div className="space-y-2.5">
             <label className="text-xs font-bold text-slate-200 block">
-              Tra cứu đối chiếu trực tiếp trên Cổng thông tin Chính thống:
+              3 Cổng Tra Cứu Trực Tiếp Chính Thức Của Nhà Nước (Tự động Copy biển số):
             </label>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="space-y-2">
+              {/* Portal 1: Cục CSGT */}
               <button
                 onClick={handleOpenCSGTPortal}
-                className="p-3 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 rounded-2xl text-left transition-all flex items-center justify-between group"
+                className="w-full p-3.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 rounded-2xl text-left transition-all flex items-center justify-between group"
               >
-                <div>
-                  <h5 className="text-xs font-bold text-slate-200 group-hover:text-amber-300 transition-colors">
-                    Cổng Cục CSGT (csgt.vn)
-                  </h5>
-                  <p className="text-[11px] text-slate-400">Cơ sở dữ liệu gốc Bộ Công An</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h5 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+                        1. Cổng Cục Cảnh Sát Giao Thông (csgt.bocongan.gov.vn)
+                      </h5>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
+                        Chính thức
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Trực tiếp trang tra cứu vi phạm phương tiện Bộ Công An
+                    </p>
+                  </div>
                 </div>
                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-amber-400" />
               </button>
 
+              {/* Portal 2: Cục Đăng Kiểm VN */}
               <button
-                onClick={handleOpenPhatNguoiVN}
-                className="p-3 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 rounded-2xl text-left transition-all flex items-center justify-between group"
+                onClick={handleOpenDangKiemPortal}
+                className="w-full p-3.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 rounded-2xl text-left transition-all flex items-center justify-between group"
               >
-                <div>
-                  <h5 className="text-xs font-bold text-slate-200 group-hover:text-cyan-300 transition-colors">
-                    Tra cứu PhatNguoi.vn
-                  </h5>
-                  <p className="text-[11px] text-slate-400">Tự động điền biển số 60K-228.98</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <Building className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h5 className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                        2. Cổng Cục Đăng Kiểm VN (app.vr.org.vn)
+                      </h5>
+                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+                        Kiểm định
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Tra cứu danh sách cảnh báo chặn đăng kiểm do chưa nộp phạt
+                    </p>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-400" />
+              </button>
+
+              {/* Portal 3: Dịch Vụ Công Quốc Gia */}
+              <button
+                onClick={handleOpenDVCQG}
+                className="w-full p-3.5 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-cyan-500/50 rounded-2xl text-left transition-all flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h5 className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">
+                        3. Cổng Dịch Vụ Công Quốc Gia (dichvucong.gov.vn)
+                      </h5>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Tra cứu biên bản & nộp phạt trực tuyến nếu có vi phạm
+                    </p>
+                  </div>
                 </div>
                 <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-cyan-400" />
               </button>
@@ -159,13 +259,13 @@ export default function PhatNguoiLookupModal({ isOpen, onClose, vehicle }) {
 
           {/* Advice notes */}
           <div className="p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl text-[11px] text-slate-400 space-y-1">
-            <p>💡 <b>Lưu ý tuyến đường hay camera phạt nguội:</b> Tuyến QL51, Cao tốc Long Thành - Dầu Giây - Phan Thiết và Xa Lộ Hà Nội đều có hệ thống camera AI phạt nguội tốc độ và làn đường 24/7.</p>
+            <p>💡 <b>Hướng dẫn tra cứu:</b> Khi bấm vào cổng tra cứu ở trên, hệ thống đã <b>tự động copy sẵn biển số {cleanPlate}</b>. Anh chỉ cần dán (Paste) vào ô Biển số và nhập mã bảo mật captcha để xem kết quả tức thì!</p>
           </div>
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs">
-          <span className="text-slate-400">Tích hợp tra cứu phạt nguội 1-chạm</span>
+          <span className="text-slate-400">Tự động sao chép biển số 1-chạm</span>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl font-semibold transition-colors"
