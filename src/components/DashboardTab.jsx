@@ -19,9 +19,11 @@ import {
   FileText,
   Shield,
   Navigation,
-  PhoneCall
+  PhoneCall,
+  RotateCw
 } from 'lucide-react';
 import { formatCurrency, formatKm, calculateReminderStatus } from '../services/vehicleService';
+import PartsLifecycleCard from './PartsLifecycleCard';
 
 export default function DashboardTab({ 
   vehicle, 
@@ -173,8 +175,8 @@ export default function DashboardTab({
         </div>
       </div>
 
-      {/* 2.5 Quick Feature Shortcuts (Glovebox, SOS, Trip Cost) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* 2.5 Quick Feature Shortcuts (Glovebox, SOS, Tires/Parts, Trip Cost) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Shortcut 1: Digital Glovebox */}
         <button
           onClick={onOpenGlovebox}
@@ -191,8 +193,8 @@ export default function DashboardTab({
           <h4 className="text-xs font-bold text-slate-100 group-hover:text-blue-300 transition-colors">
             Hộp Giấy Tờ Số
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            GPLX Hạng C, Đăng kiểm, BH VASS
+          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            GPLX C, Đăng kiểm, VASS
           </p>
         </button>
 
@@ -212,12 +214,40 @@ export default function DashboardTab({
           <h4 className="text-xs font-bold text-slate-100 group-hover:text-rose-300 transition-colors">
             Cứu Hộ & Hotline
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Cứu hộ cao tốc, VASS 19009249, Gara
+          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            Cao tốc, VASS 19009249, Gara
           </p>
         </button>
 
-        {/* Shortcut 3: Trip Cost Calculator */}
+        {/* Shortcut 3: KENDA Tires & Parts Lifecycle */}
+        <button
+          onClick={() => {
+            const el = document.getElementById('parts-lifecycle-section');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              onNavigateTab('profile');
+            }
+          }}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-slate-900 border border-cyan-800/60 hover:border-cyan-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Disc className="w-4 h-4 text-cyan-400" />
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+              KENDA 4 VỎ
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">
+            Vỏ Xe & Hao Mòn
+          </h4>
+          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            4 Lốp KENDA • Đảo lốp 74.8k
+          </p>
+        </button>
+
+        {/* Shortcut 4: Trip Cost Calculator */}
         <button
           onClick={onOpenTripCalc}
           className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-800/60 hover:border-emerald-500/80 text-left transition-all group shadow-md active:scale-95"
@@ -231,12 +261,17 @@ export default function DashboardTab({
             </span>
           </div>
           <h4 className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
-            Dự Toán Chi Phí Đi Lại
+            Dự Toán Chuyến Đi
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Tính lộ trình TP.HCM, Vũng Tàu, Phan Thiết
+          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+            Lộ trình TP.HCM, VT, PT
           </p>
         </button>
+      </div>
+
+      {/* 2.6 Parts Lifecycle Card (Bộ 4 Vỏ KENDA & Hao Mòn) */}
+      <div id="parts-lifecycle-section">
+        <PartsLifecycleCard currentOdo={vehicle?.current_odo || 65030} />
       </div>
 
       {/* 3. Urgent Reminders Banner (If Any) */}
