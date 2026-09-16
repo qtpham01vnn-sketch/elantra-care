@@ -74,6 +74,25 @@ export default function DigitalGloveboxModal({ isOpen, onClose, vehicle }) {
       ]
     },
     {
+      id: 'vetc_wallet',
+      title: 'Tài Khoản Ví VETC Thu Phí Tự Động',
+      docNo: 'Ví VETC (SĐT: 0977138673)',
+      holder: 'PHẠM QUỐC TUẤN • 60K-228.98',
+      expiry: 'Số dư: 624.267 đ',
+      authority: 'Công ty TNHH Thu Phí Tự Động VETC',
+      typeBadge: 'Ví VETC Chính',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+      note: 'Số dư khả dụng: 624.267 đ. Liên kết xe ô tô 60K-228.98T & xe máy 60G1-270.39. Đã liên kết ngân hàng.',
+      details: [
+        { label: 'Số điện thoại Ví', value: '0977138673' },
+        { label: 'Số dư khả dụng', value: '624.267 đ (Tạm giữ: 0 đ)' },
+        { label: 'Chủ tài khoản', value: 'Phạm Quốc Tuấn (CCCD: 052079020040)' },
+        { label: 'Phương tiện liên kết', value: 'Ô tô 60K-228.98T & Xe máy 60G1-270.39' },
+        { label: 'Email đăng ký', value: 'qtpham01vnn@gmail.com' },
+        { label: 'Trạng thái ví', value: '🟢 Mở khóa (Hoạt động tốt)' },
+      ]
+    },
+    {
       id: 'service_settlement',
       title: 'Quyết Toán Bảo Dưỡng Thực Tế 65.000 KM',
       docNo: 'LS-VS039-260915-004 (16/09/2026)',

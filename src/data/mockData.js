@@ -20,6 +20,9 @@ export const INITIAL_VEHICLE = {
   reg_date: '2022-11-29', // Ngày ĐKBH từ phiếu Hãng
   owner_name: 'Phạm Quốc Tuấn',
   dob: '10/01/1979',
+  cccd: '052079020040',
+  phone: '0977138673',
+  email: 'qtpham01vnn@gmail.com',
   address: 'Xã Cẩm Đường, Huyện Long Thành, Tỉnh Đồng Nai',
   driver_license_no: '740009000756', // Hạng C
   driver_license_expiry: '2029-09-27',
@@ -29,6 +32,7 @@ export const INITIAL_VEHICLE = {
   curb_weight: '1.200 kg',
   gross_weight: '1.750 kg',
   current_odo: 65030,
+  vetc_balance: 624267,
   fuel_capacity: 47.0, // Lít
   fuel_type: 'RON 95-III',
   photo_url: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80',
@@ -196,15 +200,16 @@ export const INITIAL_LEGAL_DOCUMENTS = [
   {
     id: 'doc-vetc',
     type: 'TOLL_VETC',
-    title: 'Tài khoản Thu phí tự động VETC / ePass',
-    provider: 'VETC Giao Thông Thông Minh',
-    account_no: 'E010293849',
+    title: 'Tài khoản Thu phí tự động VETC (Ví chính)',
+    provider: 'Công ty TNHH Thu Phí Tự Động VETC',
+    account_no: '0977138673',
     tag_position: 'Dán trên kính lái phía trước (Đèn pha)',
-    current_balance: 450000,
-    min_balance_alert: 200000,
+    current_balance: 624267,
+    available_balance: 624267,
+    min_balance_alert: 100000,
     linked_plate: '60K-228.98',
     status: 'ACTIVE',
-    note: 'Dùng qua trạm thu phí cao tốc Long Thành - Dầu Giây, Phan Thiết...'
+    note: 'Chủ ví: Phạm Quốc Tuấn (0977138673). Liên kết xe ô tô 60K-228.98T & xe máy 60G1-270.39.'
   }
 ];
 

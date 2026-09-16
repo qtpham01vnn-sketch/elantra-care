@@ -11,6 +11,9 @@ import ExportLogbookModal from './components/ExportLogbookModal';
 import DigitalGloveboxModal from './components/DigitalGloveboxModal';
 import SOSToolkitModal from './components/SOSToolkitModal';
 import TripCostCalculatorModal from './components/TripCostCalculatorModal';
+import VETCWalletModal from './components/VETCWalletModal';
+import PhatNguoiLookupModal from './components/PhatNguoiLookupModal';
+import SmartVehicleQRModal from './components/SmartVehicleQRModal';
 import { vehicleService, calculateReminderStatus } from './services/vehicleService';
 import { 
   INITIAL_VEHICLE, 
@@ -28,6 +31,9 @@ export default function App() {
   const [isGloveboxOpen, setIsGloveboxOpen] = useState(false);
   const [isSosOpen, setIsSosOpen] = useState(false);
   const [isTripCalcOpen, setIsTripCalcOpen] = useState(false);
+  const [isVetcOpen, setIsVetcOpen] = useState(false);
+  const [isPhatNguoiOpen, setIsPhatNguoiOpen] = useState(false);
+  const [isSmartQrOpen, setIsSmartQrOpen] = useState(false);
   const [quickAddInitialMode, setQuickAddInitialMode] = useState('fuel');
 
   // App Main State
@@ -176,6 +182,9 @@ export default function App() {
             onOpenGlovebox={() => setIsGloveboxOpen(true)}
             onOpenSos={() => setIsSosOpen(true)}
             onOpenTripCalc={() => setIsTripCalcOpen(true)}
+            onOpenVETC={() => setIsVetcOpen(true)}
+            onOpenPhatNguoi={() => setIsPhatNguoiOpen(true)}
+            onOpenSmartQR={() => setIsSmartQrOpen(true)}
           />
         )}
 
@@ -287,6 +296,27 @@ export default function App() {
       <TripCostCalculatorModal
         isOpen={isTripCalcOpen}
         onClose={() => setIsTripCalcOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* VETC Wallet Modal */}
+      <VETCWalletModal
+        isOpen={isVetcOpen}
+        onClose={() => setIsVetcOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* Traffic Fine Lookup Modal */}
+      <PhatNguoiLookupModal
+        isOpen={isPhatNguoiOpen}
+        onClose={() => setIsPhatNguoiOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* Smart Vehicle QR Modal */}
+      <SmartVehicleQRModal
+        isOpen={isSmartQrOpen}
+        onClose={() => setIsSmartQrOpen(false)}
         vehicle={vehicle}
       />
     </div>

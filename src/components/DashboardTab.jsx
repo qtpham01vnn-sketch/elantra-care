@@ -20,9 +20,14 @@ import {
   Shield,
   Navigation,
   PhoneCall,
-  RotateCw
+  RotateCw,
+  CreditCard,
+  QrCode,
+  AlertOctagon,
+  Calendar
 } from 'lucide-react';
 import { formatCurrency, formatKm, calculateReminderStatus } from '../services/vehicleService';
+import { NEXT_SERVICE_ESTIMATE } from '../data/mockData';
 import PartsLifecycleCard from './PartsLifecycleCard';
 
 export default function DashboardTab({ 
@@ -35,7 +40,10 @@ export default function DashboardTab({
   onOpenQuickAdd,
   onOpenGlovebox,
   onOpenSos,
-  onOpenTripCalc
+  onOpenTripCalc,
+  onOpenVETC,
+  onOpenPhatNguoi,
+  onOpenSmartQR
 }) {
   // Tính toán KPI Tổng hợp
   const totalFuelCost = fuelLogs.reduce((acc, f) => acc + (f.total_cost || 0), 0);
@@ -175,96 +183,169 @@ export default function DashboardTab({
         </div>
       </div>
 
-      {/* 2.5 Quick Feature Shortcuts (Glovebox, SOS, Tires/Parts, Trip Cost) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 2.4 Next Service Appointment Mini Banner (Mốc 70.000 km) */}
+      <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900 to-blue-950/40 border border-cyan-500/40 rounded-2xl p-4 shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/30">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white uppercase tracking-wide">
+                  Hẹn Bảo Dưỡng Lần Sau: 70.023 KM
+                </span>
+                <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  CẤP 1 NHỎ
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Ngày hẹn: <strong className="text-slate-200">16/01/2027</strong> • Gara: <strong className="text-cyan-300">Hyundai Ngọc Phát</strong> (CVDV Cao Nguyên - 0358455495)
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-center">
+            <div className="text-right">
+              <span className="text-[10px] text-slate-400 block">Dự toán chi phí</span>
+              <span className="text-sm font-mono font-bold text-emerald-400">~1.150.000 đ</span>
+            </div>
+            <button
+              onClick={() => onNavigateTab('reminders')}
+              className="px-3 py-1.5 bg-cyan-600/30 hover:bg-cyan-600/40 border border-cyan-500/40 text-cyan-200 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all active:scale-95"
+            >
+              <span>Chi tiết</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2.5 Quick Feature Shortcuts Grid (7 tiện ích chuyên sâu) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         {/* Shortcut 1: Digital Glovebox */}
         <button
           onClick={onOpenGlovebox}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-slate-900 border border-blue-800/60 hover:border-blue-500/80 text-left transition-all group shadow-md active:scale-95"
+          className="p-3 rounded-2xl bg-gradient-to-br from-blue-950/60 to-slate-900 border border-blue-800/60 hover:border-blue-500/80 text-left transition-all group shadow-md active:scale-95"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <FileText className="w-4 h-4" />
+            <span className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="w-3.5 h-3.5" />
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300">
               1-CHẠM
             </span>
           </div>
           <h4 className="text-xs font-bold text-slate-100 group-hover:text-blue-300 transition-colors">
             Hộp Giấy Tờ Số
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
             GPLX C, Đăng kiểm, VASS
           </p>
         </button>
 
-        {/* Shortcut 2: SOS Emergency Toolkit */}
+        {/* Shortcut 2: VETC Wallet */}
         <button
-          onClick={onOpenSos}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-950/60 to-slate-900 border border-rose-800/60 hover:border-rose-500/80 text-left transition-all group shadow-md active:scale-95"
+          onClick={onOpenVETC}
+          className="p-3 rounded-2xl bg-gradient-to-br from-emerald-950/60 to-slate-900 border border-emerald-800/60 hover:border-emerald-500/80 text-left transition-all group shadow-md active:scale-95"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <PhoneCall className="w-4 h-4 text-rose-400" />
+            <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CreditCard className="w-3.5 h-3.5" />
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">
+              624K
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+            Ví VETC Thu Phí
+          </h4>
+          <p className="text-[10px] text-emerald-400 font-mono mt-0.5 truncate font-semibold">
+            624.267 đ (Khả dụng)
+          </p>
+        </button>
+
+        {/* Shortcut 3: Traffic Fine Lookup (Phạt Nguội) */}
+        <button
+          onClick={onOpenPhatNguoi}
+          className="p-3 rounded-2xl bg-gradient-to-br from-amber-950/60 to-slate-900 border border-amber-800/60 hover:border-amber-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <AlertTriangle className="w-3.5 h-3.5" />
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+              SẠCH LỖI
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-amber-300 transition-colors">
+            Phạt Nguội CSGT
+          </h4>
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+            Biển số 60K-228.98
+          </p>
+        </button>
+
+        {/* Shortcut 4: Smart Vehicle QR */}
+        <button
+          onClick={onOpenSmartQR}
+          className="p-3 rounded-2xl bg-gradient-to-br from-purple-950/60 to-slate-900 border border-purple-800/60 hover:border-purple-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <QrCode className="w-3.5 h-3.5" />
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300">
+              SMART
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-purple-300 transition-colors">
+            Mã QR Sổ Xe
+          </h4>
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+            Quét cho thợ / gara
+          </p>
+        </button>
+
+        {/* Shortcut 5: SOS Emergency Toolkit */}
+        <button
+          onClick={onOpenSos}
+          className="p-3 rounded-2xl bg-gradient-to-br from-rose-950/60 to-slate-900 border border-rose-800/60 hover:border-rose-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PhoneCall className="w-3.5 h-3.5 text-rose-400" />
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 animate-pulse">
               SOS 24/7
             </span>
           </div>
           <h4 className="text-xs font-bold text-slate-100 group-hover:text-rose-300 transition-colors">
             Cứu Hộ & Hotline
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
-            Cao tốc, VASS 19009249, Gara
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+            Cao tốc, VASS, Gara
           </p>
         </button>
 
-        {/* Shortcut 3: KENDA Tires & Parts Lifecycle */}
-        <button
-          onClick={() => {
-            const el = document.getElementById('parts-lifecycle-section');
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-              onNavigateTab('profile');
-            }
-          }}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-slate-900 border border-cyan-800/60 hover:border-cyan-500/80 text-left transition-all group shadow-md active:scale-95"
-        >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Disc className="w-4 h-4 text-cyan-400" />
-            </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-              KENDA 4 VỎ
-            </span>
-          </div>
-          <h4 className="text-xs font-bold text-slate-100 group-hover:text-cyan-300 transition-colors">
-            Vỏ Xe & Hao Mòn
-          </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
-            4 Lốp KENDA • Đảo lốp 74.8k
-          </p>
-        </button>
-
-        {/* Shortcut 4: Trip Cost Calculator */}
+        {/* Shortcut 6: Trip Cost Calculator */}
         <button
           onClick={onOpenTripCalc}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-800/60 hover:border-emerald-500/80 text-left transition-all group shadow-md active:scale-95"
+          className="p-3 rounded-2xl bg-gradient-to-br from-teal-950/60 to-slate-900 border border-teal-800/60 hover:border-teal-500/80 text-left transition-all group shadow-md active:scale-95"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Navigation className="w-4 h-4 text-emerald-400" />
+            <span className="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Navigation className="w-3.5 h-3.5" />
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              XĂNG + BOT
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300">
+              BOT
             </span>
           </div>
-          <h4 className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
-            Dự Toán Chuyến Đi
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-teal-300 transition-colors">
+            Dự Toán Tuyến
           </h4>
-          <p className="text-[11px] text-slate-400 mt-0.5 truncate">
-            Lộ trình TP.HCM, VT, PT
+          <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+            TP.HCM, VT, Phan Thiết
           </p>
         </button>
       </div>
