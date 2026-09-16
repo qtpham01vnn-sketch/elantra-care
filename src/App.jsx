@@ -64,13 +64,22 @@ export default function App() {
 
   // Check URL query params for notification click redirect
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.search.includes('notif=')) {
-      setActiveTab('reminders');
-      setNotificationBanner({
-        title: '🚗 Hyundai Elantra 60K-228.98',
-        message: 'Đã mở từ thông báo điện thoại! Dưới đây là các hạng mục bảo dưỡng & bảo hiểm cần chú ý.'
-      });
-      setTimeout(() => setNotificationBanner(null), 7000);
+    if (typeof window !== 'undefined') {
+      if (window.location.search.includes('notif=')) {
+        setActiveTab('reminders');
+        setNotificationBanner({
+          title: '🚗 Hyundai Elantra 60K-228.98',
+          message: 'Đã mở từ thông báo điện thoại! Dưới đây là các hạng mục bảo dưỡng & bảo hiểm cần chú ý.'
+        });
+        setTimeout(() => setNotificationBanner(null), 7000);
+      } else if (window.location.search.includes('passport=')) {
+        setIsGloveboxOpen(true);
+        setNotificationBanner({
+          title: '🔍 Đã quét mã QR Sổ Xe 60K-228.98!',
+          message: 'Chào mừng anh! Dưới đây là hồ sơ xe điện tử, giấy phép lái xe C, sổ đăng kiểm & lịch sử bảo dưỡng.'
+        });
+        setTimeout(() => setNotificationBanner(null), 8000);
+      }
     }
   }, []);
 

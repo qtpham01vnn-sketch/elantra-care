@@ -20,8 +20,7 @@ export default function SmartVehicleQRModal({ isOpen, onClose, vehicle }) {
 
   if (!isOpen) return null;
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.origin : 'https://elantra-care.vercel.app';
-  const passportUrl = `${currentUrl}?passport=60K22898`;
+  const passportUrl = 'https://elantra-care.vercel.app/?passport=60K22898';
 
   const handleCopyLink = () => {
     if (navigator.clipboard) {
