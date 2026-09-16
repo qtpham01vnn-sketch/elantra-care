@@ -340,6 +340,21 @@ export const INITIAL_SERVICE_LOGS = [
 
 export const INITIAL_FUEL_LOGS = [
   {
+    id: 'fuel-today-65k',
+    vehicle_id: 'e1a47a11-2289-4860-9889-000000000001',
+    fuel_date: '2026-09-16',
+    odo: 65030,
+    liters: 18.57,
+    price_per_liter: 24230,
+    total_cost: 450000,
+    is_full_tank: false,
+    is_missed: false,
+    gas_station: 'Petrolimex Cửa hàng Long Thành',
+    notes: 'Đổ xăng RON 95-III sau khi hoàn tất bảo dưỡng mốc 65.023 km tại Hyundai Ngọc Phát',
+    consumption_l_100km: 6.85,
+    cost_per_km: 1660,
+  },
+  {
     id: 'fuel-001',
     vehicle_id: 'e1a47a11-2289-4860-9889-000000000001',
     fuel_date: getRelativeDate(-2, -15),
