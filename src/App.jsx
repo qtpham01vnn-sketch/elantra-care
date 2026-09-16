@@ -35,6 +35,7 @@ export default function App() {
   const [isPhatNguoiOpen, setIsPhatNguoiOpen] = useState(false);
   const [isSmartQrOpen, setIsSmartQrOpen] = useState(false);
   const [quickAddInitialMode, setQuickAddInitialMode] = useState('fuel');
+  const [quickAddServiceData, setQuickAddServiceData] = useState(null);
 
   // App Main State
   const [vehicle, setVehicle] = useState(INITIAL_VEHICLE);
@@ -148,9 +149,10 @@ export default function App() {
     setExpenses(updatedExpenses);
   };
 
-  // Quick Open Modal with Mode
-  const openQuickAddWithMode = (mode = 'fuel') => {
+  // Quick Open Modal with Mode & Data
+  const openQuickAddWithMode = (mode = 'fuel', serviceData = null) => {
     setQuickAddInitialMode(mode);
+    setQuickAddServiceData(serviceData);
     setIsQuickAddOpen(true);
   };
 
@@ -229,7 +231,7 @@ export default function App() {
           <RemindersTab 
             reminders={reminders}
             currentOdo={vehicle.current_odo}
-            onAddServiceFromReminder={(rem) => openQuickAddWithMode('service')}
+            onAddServiceFromReminder={(serviceData) => openQuickAddWithMode('service', serviceData)}
           />
         )}
       </main>
@@ -270,8 +272,12 @@ export default function App() {
       {/* Quick Add Modal */}
       <QuickAddModal 
         isOpen={isQuickAddOpen}
-        onClose={() => setIsQuickAddOpen(false)}
+        onClose={() => {
+          setIsQuickAddOpen(false);
+          setQuickAddServiceData(null);
+        }}
         initialMode={quickAddInitialMode}
+        initialServiceData={quickAddServiceData}
         currentOdo={vehicle.current_odo}
         onAddFuel={handleAddFuel}
         onAddService={handleAddService}

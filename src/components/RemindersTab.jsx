@@ -85,7 +85,24 @@ export default function RemindersTab({ reminders, currentOdo, onAddServiceFromRe
                 </div>
 
                 <button
-                  onClick={() => onAddServiceFromReminder(rem)}
+                  onClick={() => {
+                    const text = rem.item_type.toLowerCase();
+                    let cost = 200000;
+                    if (text.includes('nhớt') || text.includes('dầu')) cost = 1151000;
+                    else if (text.includes('lọc nhớt')) cost = 65000;
+                    else if (text.includes('lọc gió động cơ')) cost = 220000;
+                    else if (text.includes('máy lạnh') || text.includes('cabin')) cost = 350000;
+                    else if (text.includes('nhiên liệu') || text.includes('lọc xăng')) cost = 650000;
+                    else if (text.includes('phanh')) cost = 180000;
+                    else if (text.includes('bugi')) cost = 640000;
+                    else if (text.includes('hộp số')) cost = 1450000;
+
+                    onAddServiceFromReminder({
+                      item_name: rem.item_type,
+                      cost: cost,
+                      garage_name: 'Hyundai Ngọc Phát'
+                    });
+                  }}
                   className="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-semibold whitespace-nowrap"
                 >
                   Xác nhận làm

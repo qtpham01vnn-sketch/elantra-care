@@ -23,6 +23,7 @@ export default function QuickAddModal({
   isOpen, 
   onClose, 
   initialMode = 'fuel', 
+  initialServiceData = null,
   currentOdo, 
   onAddFuel, 
   onAddService, 
@@ -31,6 +32,13 @@ export default function QuickAddModal({
   const [activeMode, setActiveMode] = useState(initialMode);
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Sync mode whenever modal opens or initialMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setActiveMode(initialMode);
+    }
+  }, [isOpen, initialMode]);
 
   // Fuel State
   const [fuelOdo, setFuelOdo] = useState(currentOdo || 65010);
@@ -91,16 +99,38 @@ export default function QuickAddModal({
       quantity: 4, 
       unit_price: 215000, 
       labor_price: 0 
-    },
-    { 
-      item_name: 'Lọc gió máy lạnh (Cabin filter)', 
-      category: 'ENGINE_CHASSIS', 
-      is_mandatory: true, 
-      quantity: 1, 
-      unit_price: 350000, 
-      labor_price: 0 
     }
   ]);
+
+  // Sync service items when initialServiceData is supplied
+  useEffect(() => {
+    if (isOpen && initialServiceData) {
+      if (initialServiceData.selected_items && initialServiceData.selected_items.length > 0) {
+        setServiceItems(initialServiceData.selected_items.map(it => ({
+          item_name: it.name || it.item_name,
+          category: 'ENGINE_CHASSIS',
+          is_mandatory: it.isMandatory !== undefined ? it.isMandatory : true,
+          quantity: 1,
+          unit_price: it.cost || 0,
+          labor_price: 0
+        })));
+      } else if (initialServiceData.item_name || initialServiceData.item_type) {
+        setServiceItems([
+          {
+            item_name: initialServiceData.item_name || initialServiceData.item_type,
+            category: 'ENGINE_CHASSIS',
+            is_mandatory: true,
+            quantity: 1,
+            unit_price: initialServiceData.cost || initialServiceData.estimated_cost || 0,
+            labor_price: 0
+          }
+        ]);
+      }
+      if (initialServiceData.garage_name) {
+        setGarageName(initialServiceData.garage_name);
+      }
+    }
+  }, [isOpen, initialServiceData]);
 
   // Expense State
   const [expenseTitle, setExpenseTitle] = useState('Nạp tiền VETC / ePass');
