@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
 import { BellRing, Plus, Wrench, Shield, CheckCircle2, AlertTriangle, Clock, Calendar, Droplets } from 'lucide-react';
 import { formatKm, calculateReminderStatus } from '../services/vehicleService';
+import NextServiceEstimatorCard from './NextServiceEstimatorCard';
 
 export default function RemindersTab({ reminders, currentOdo, onAddServiceFromReminder }) {
   const [newReminderName, setNewReminderName] = useState('');
@@ -11,9 +11,15 @@ export default function RemindersTab({ reminders, currentOdo, onAddServiceFromRe
   const evaluatedReminders = reminders.map(r => calculateReminderStatus(r, currentOdo));
 
   return (
-    <div className="space-y-4 pb-24 max-w-4xl mx-auto px-4 pt-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-5 pb-24 max-w-4xl mx-auto px-4 pt-4">
+      {/* 1. Next Service Estimator Card (Mốc 70.000 km) */}
+      <NextServiceEstimatorCard 
+        currentOdo={currentOdo} 
+        onAddService={onAddServiceFromReminder} 
+      />
+
+      {/* 2. Header & Reminders List */}
+      <div className="flex items-center justify-between pt-2">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <BellRing className="w-5 h-5 text-cyan-400" />

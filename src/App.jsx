@@ -8,6 +8,9 @@ import RemindersTab from './components/RemindersTab';
 import VehicleProfileTab from './components/VehicleProfileTab';
 import QuickAddModal from './components/QuickAddModal';
 import ExportLogbookModal from './components/ExportLogbookModal';
+import DigitalGloveboxModal from './components/DigitalGloveboxModal';
+import SOSToolkitModal from './components/SOSToolkitModal';
+import TripCostCalculatorModal from './components/TripCostCalculatorModal';
 import { vehicleService, calculateReminderStatus } from './services/vehicleService';
 import { 
   INITIAL_VEHICLE, 
@@ -22,6 +25,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isGloveboxOpen, setIsGloveboxOpen] = useState(false);
+  const [isSosOpen, setIsSosOpen] = useState(false);
+  const [isTripCalcOpen, setIsTripCalcOpen] = useState(false);
   const [quickAddInitialMode, setQuickAddInitialMode] = useState('fuel');
 
   // App Main State
@@ -167,6 +173,9 @@ export default function App() {
             reminders={reminders}
             onNavigateTab={setActiveTab}
             onOpenQuickAdd={openQuickAddWithMode}
+            onOpenGlovebox={() => setIsGloveboxOpen(true)}
+            onOpenSos={() => setIsSosOpen(true)}
+            onOpenTripCalc={() => setIsTripCalcOpen(true)}
           />
         )}
 
@@ -185,6 +194,7 @@ export default function App() {
             currentOdo={vehicle.current_odo}
             onOpenQuickAdd={openQuickAddWithMode}
             onOpenExport={() => setIsExportOpen(true)}
+            onOpenTripCalc={() => setIsTripCalcOpen(true)}
           />
         )}
 
@@ -257,6 +267,27 @@ export default function App() {
         vehicle={vehicle}
         serviceLogs={serviceLogs}
         reminders={reminders}
+      />
+
+      {/* Digital Glovebox Modal */}
+      <DigitalGloveboxModal
+        isOpen={isGloveboxOpen}
+        onClose={() => setIsGloveboxOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* SOS Toolkit Modal */}
+      <SOSToolkitModal
+        isOpen={isSosOpen}
+        onClose={() => setIsSosOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* Trip Cost Calculator Modal */}
+      <TripCostCalculatorModal
+        isOpen={isTripCalcOpen}
+        onClose={() => setIsTripCalcOpen(false)}
+        vehicle={vehicle}
       />
     </div>
   );

@@ -15,7 +15,11 @@ import {
   Cog, 
   ArrowRight,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  FileText,
+  Shield,
+  Navigation,
+  PhoneCall
 } from 'lucide-react';
 import { formatCurrency, formatKm, calculateReminderStatus } from '../services/vehicleService';
 
@@ -26,7 +30,10 @@ export default function DashboardTab({
   expenses, 
   reminders, 
   onNavigateTab,
-  onOpenQuickAdd 
+  onOpenQuickAdd,
+  onOpenGlovebox,
+  onOpenSos,
+  onOpenTripCalc
 }) {
   // Tính toán KPI Tổng hợp
   const totalFuelCost = fuelLogs.reduce((acc, f) => acc + (f.total_cost || 0), 0);
@@ -164,6 +171,72 @@ export default function DashboardTab({
             <p className="text-[10px] text-slate-500 mt-0.5">Toàn bộ chi phí đã ghi</p>
           </div>
         </div>
+      </div>
+
+      {/* 2.5 Quick Feature Shortcuts (Glovebox, SOS, Trip Cost) */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Shortcut 1: Digital Glovebox */}
+        <button
+          onClick={onOpenGlovebox}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/60 to-slate-900 border border-blue-800/60 hover:border-blue-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileText className="w-4 h-4" />
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
+              1-CHẠM
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-blue-300 transition-colors">
+            Hộp Giấy Tờ Số
+          </h4>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            GPLX Hạng C, Đăng kiểm, BH VASS
+          </p>
+        </button>
+
+        {/* Shortcut 2: SOS Emergency Toolkit */}
+        <button
+          onClick={onOpenSos}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-rose-950/60 to-slate-900 border border-rose-800/60 hover:border-rose-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <PhoneCall className="w-4 h-4 text-rose-400" />
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
+              SOS 24/7
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-rose-300 transition-colors">
+            Cứu Hộ & Hotline
+          </h4>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Cứu hộ cao tốc, VASS 19009249, Gara
+          </p>
+        </button>
+
+        {/* Shortcut 3: Trip Cost Calculator */}
+        <button
+          onClick={onOpenTripCalc}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-800/60 hover:border-emerald-500/80 text-left transition-all group shadow-md active:scale-95"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Navigation className="w-4 h-4 text-emerald-400" />
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              XĂNG + BOT
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+            Dự Toán Chi Phí Đi Lại
+          </h4>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Tính lộ trình TP.HCM, Vũng Tàu, Phan Thiết
+          </p>
+        </button>
       </div>
 
       {/* 3. Urgent Reminders Banner (If Any) */}

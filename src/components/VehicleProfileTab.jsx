@@ -32,6 +32,9 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
+import DigitalGloveboxModal from './DigitalGloveboxModal';
+import SOSToolkitModal from './SOSToolkitModal';
+import PartsLifecycleCard from './PartsLifecycleCard';
 
 export const REAL_GARAGE_ROADMAP = [
   {
@@ -195,6 +198,8 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const [editingDocId, setEditingDocId] = useState(null);
   const [editExpiryDate, setEditExpiryDate] = useState('');
   const [editProvider, setEditProvider] = useState('');
+  const [isGloveboxOpen, setIsGloveboxOpen] = useState(false);
+  const [isSosOpen, setIsSosOpen] = useState(false);
 
   // Notification Channels State
   const [pushStatus, setPushStatus] = useState(
@@ -489,11 +494,33 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               <p className="text-xs font-semibold text-emerald-300 truncate">
                 Sổ: VA 0765744 (15/05/2027)
               </p>
-              <p className="text-[11px] text-slate-400">Lốp: 195/65R15 • Tự trọng 1.200 kg</p>
+              <p className="text-[11px] text-slate-400">4 Vỏ KENDA 195/65R15 • Đã cân mâm chì</p>
             </div>
+          </div>
+
+          {/* Quick Action Bar for Digital Glovebox & SOS */}
+          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            <button
+              onClick={() => setIsGloveboxOpen(true)}
+              className="flex-1 py-2.5 px-4 bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/40 hover:to-blue-600/40 border border-cyan-500/50 hover:border-cyan-400 text-cyan-200 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+            >
+              <FileText className="w-4 h-4 text-cyan-400" />
+              <span>🗂️ Mở Hộp Giấy Tờ Số (GPLX C, Đăng kiểm, Bảo hiểm VASS)</span>
+            </button>
+
+            <button
+              onClick={() => setIsSosOpen(true)}
+              className="py-2.5 px-4 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/50 hover:border-rose-400 text-rose-200 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+            >
+              <AlertTriangle className="w-4 h-4 text-rose-400 animate-pulse" />
+              <span>🆘 Cứu Hộ Khẩn Cấp & Hotline</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* 2. THEO DÕI VỎ XE KENDA & VÒNG ĐỜI PHỤ TÙNG HAO MÒN */}
+      <PartsLifecycleCard currentOdo={vehicle?.current_odo || 65030} />
 
       {/* 2. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
       <div className="space-y-4">
@@ -952,6 +979,19 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
           </div>
         </div>
       </div>
+
+      {/* Digital Glovebox Modal */}
+      <DigitalGloveboxModal 
+        isOpen={isGloveboxOpen} 
+        onClose={() => setIsGloveboxOpen(false)} 
+        vehicle={vehicle} 
+      />
+
+      {/* SOS Emergency Modal */}
+      <SOSToolkitModal 
+        isOpen={isSosOpen} 
+        onClose={() => setIsSosOpen(false)} 
+      />
     </div>
   );
 }

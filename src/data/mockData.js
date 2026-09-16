@@ -25,13 +25,119 @@ export const INITIAL_VEHICLE = {
   driver_license_expiry: '2029-09-27',
   engine_displacement: '1.591 cm³ (1.6L MPI)',
   engine_power: '93 kW / 6.300 rpm (~128 HP)',
-  tire_spec: '195/65R15',
+  tire_spec: 'KENDA 195/65R15 (Thay mới 4 vỏ, cân mâm bấm chì OK)',
   curb_weight: '1.200 kg',
   gross_weight: '1.750 kg',
   current_odo: 65030,
   fuel_capacity: 47.0, // Lít
   fuel_type: 'RON 95-III',
   photo_url: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80',
+};
+
+// Phân hệ theo dõi tuổi thọ chi tiết phụ tùng & vỏ xe
+export const INITIAL_PARTS_LIFECYCLE = [
+  {
+    id: 'part-tire',
+    name: 'Bộ 4 vỏ xe KENDA 195/65R15',
+    category: 'TIRE',
+    installed_date: '2026-09-02', // 2 tuần trước
+    installed_odo: 64800,
+    status: 'EXCELLENT',
+    notes: 'Đã thay mới 4 vỏ KENDA 195/65R15, cân mâm bấm chì chuẩn xác. Chu kỳ đảo lốp sau mỗi 10.000 km.',
+    rotation_interval_km: 10000,
+    next_rotation_odo: 74800,
+    life_expectancy_km: 60000,
+    next_replacement_odo: 124800,
+    health_percentage: 99,
+  },
+  {
+    id: 'part-battery',
+    name: 'Bình Ắc quy 12V 60Ah DIN60L',
+    category: 'BATTERY',
+    installed_date: '2024-06-15',
+    installed_odo: 28000,
+    status: 'GOOD',
+    notes: 'Điện áp 12.6V, khởi động êm ái. Tuổi thọ trung bình 24 - 36 tháng.',
+    life_expectancy_months: 30,
+    health_percentage: 82,
+  },
+  {
+    id: 'part-wiper',
+    name: 'Cặp cần gạt nước mưa Silicon',
+    category: 'WIPER',
+    installed_date: '2026-05-15',
+    installed_odo: 58000,
+    status: 'GOOD',
+    notes: 'Lưỡi gạt êm, gạt sạch nước kính lái, không để lại vệt mờ.',
+    life_expectancy_months: 12,
+    health_percentage: 88,
+  },
+  {
+    id: 'part-ac',
+    name: 'Hệ thống Điều hòa & Gas lạnh R134a',
+    category: 'AC',
+    installed_date: '2026-01-20',
+    installed_odo: 40000,
+    status: 'GOOD',
+    notes: 'Làm lạnh sâu, cửa gió mát đều. Khuyến nghị vệ sinh nội soi dàn lạnh sau mỗi 20.000 km.',
+    next_check_odo: 70000,
+    health_percentage: 90,
+  }
+];
+
+// Danh sách các tuyến đường quen thuộc phục vụ tính chi phí chuyến đi
+export const POPULAR_ROUTES = [
+  {
+    id: 'route-hcm',
+    name: 'Long Thành ⇄ TP. Hồ Chí Minh (Cao tốc CT01)',
+    distance_km: 45,
+    toll_fee: 78000, // Trạm thu phí Long Thành
+    route_type: 'HIGHWAY',
+  },
+  {
+    id: 'route-bienhoa',
+    name: 'Long Thành ⇄ TP. Biên Hòa (QL51 / Hương lộ 10)',
+    distance_km: 35,
+    toll_fee: 0,
+    route_type: 'MIXED',
+  },
+  {
+    id: 'route-vungtau',
+    name: 'Long Thành ⇄ TP. Vũng Tàu (QL51)',
+    distance_km: 75,
+    toll_fee: 20000, // Trạm T2 QL51
+    route_type: 'MIXED',
+  },
+  {
+    id: 'route-phanthiet',
+    name: 'Long Thành ⇄ TP. Phan Thiết (Cao tốc Dầu Giây - Phan Thiết)',
+    distance_km: 165,
+    toll_fee: 140000,
+    route_type: 'HIGHWAY',
+  },
+  {
+    id: 'route-dalat',
+    name: 'Long Thành ⇄ TP. Đà Lạt (Cao tốc + QL20)',
+    distance_km: 260,
+    toll_fee: 170000,
+    route_type: 'MIXED',
+  }
+];
+
+// Dự toán chi phí bảo dưỡng mốc kế tiếp
+export const NEXT_SERVICE_ESTIMATE = {
+  milestone_odo: 70023,
+  estimated_date: '2027-01-16',
+  level: 'CẤP 1 (BẢO DƯỠNG NHỎ - 70.000 KM)',
+  garage_name: 'Hyundai Ngọc Phát (Đồng Nai)',
+  estimated_cost: 1150000,
+  items: [
+    { name: 'Dầu nhớt động cơ Hyundai 5W-30 (4.5L)', cost: 936000, mandatory: true },
+    { name: 'Gioăng ốc xả nhớt', cost: 15000, mandatory: true },
+    { name: 'Công bảo dưỡng Cấp 1 + Rửa xe hút bụi', cost: 200000, mandatory: true },
+    { name: 'Kiểm tra lọc gió động cơ & điều hòa (xịt bụi)', cost: 0, mandatory: true },
+  ],
+  recommendations: 'Chỉ làm các hạng mục bắt buộc. Từ chối phụ gia súc béc/động cơ không cần thiết để tối ưu chi phí như mốc 65k vừa rồi.'
 };
 
 export const INITIAL_LEGAL_DOCUMENTS = [

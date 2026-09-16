@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 import ServiceDetailModal from './ServiceDetailModal';
+import { Navigation } from 'lucide-react';
 
 export default function TimelineTab({ 
   serviceLogs, 
@@ -22,7 +23,8 @@ export default function TimelineTab({
   expenses, 
   currentOdo,
   onOpenQuickAdd,
-  onOpenExport
+  onOpenExport,
+  onOpenTripCalc
 }) {
   const [filterType, setFilterType] = useState('ALL'); // ALL, SERVICE, SERVICE_HANG, SERVICE_GARA, FUEL, EXPENSE
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,13 +84,23 @@ export default function TimelineTab({
             </p>
           </div>
 
-          <button
-            onClick={onOpenExport}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition-all active:scale-95"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Xuất sổ PDF</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenTripCalc}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold transition-all active:scale-95"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>Dự toán Tuyến</span>
+            </button>
+
+            <button
+              onClick={onOpenExport}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition-all active:scale-95"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Xuất sổ PDF</span>
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}
