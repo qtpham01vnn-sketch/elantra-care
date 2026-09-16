@@ -24,7 +24,11 @@ import {
   Bell,
   Send,
   MessageSquare,
-  Smartphone
+  Smartphone,
+  UserCheck,
+  Gauge,
+  Layers,
+  Award
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
@@ -189,7 +193,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   );
   const [telegramEnabled, setTelegramEnabled] = useState(true);
   const [telegramChatId, setTelegramChatId] = useState(() => 
-    typeof window !== 'undefined' ? localStorage.getItem('elantra_telegram_chat_id') || '' : ''
+    typeof window !== 'undefined' ? localStorage.getItem('elantra_telegram_chat_id') || '6409390739' : '6409390739'
   );
   const [telegramBotToken, setTelegramBotToken] = useState(() => 
     typeof window !== 'undefined' ? localStorage.getItem('elantra_telegram_bot_token') || '' : ''
@@ -283,7 +287,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
   // 2. Test Telegram Notification (Direct API or Share Fallback)
   const handleTestTelegram = async () => {
-    const alertMessage = `🚗 *[HYUNDAI ELANTRA 60K-228.98]*\n👤 *Chủ xe:* Phạm Quốc Tuấn\n🛣️ *ODO hiện tại:* 65.023 km\n\n⚠️ *CẢNH BÁO ĐẾN HẠN:*\n• 🛢️ *Dầu nhớt động cơ:* Cần thay mới mốc 65.000 km\n• 🛡️ *Bảo hiểm TNDS:* Đến hạn 29/11/2026\n• 📋 *Đăng kiểm định kỳ:* Đến hạn 29/05/2025\n• 🏷️ *Tài khoản VETC:* Hoạt động tốt\n\n🔗 _Xem chi tiết sổ xe: https://elantra-care.vercel.app_`;
+    const alertMessage = `🚗 *[HYUNDAI ELANTRA 60K-228.98]*\n👤 *Chủ xe:* Phạm Quốc Tuấn (GPLX Hạng C: 740009000756)\n🛣️ *ODO hiện tại:* 65.023 km\n\n⚠️ *CẢNH BÁO ĐẾN HẠN:*\n• 🛢️ *Dầu nhớt động cơ:* Cần thay mới mốc 65.000 km\n• 🛡️ *Bảo hiểm TNDS (VASS):* Hạn đến 07/06/2027\n• 📋 *Đăng kiểm (Trạm 6006D):* Hạn đến 15/05/2027\n• 🏷️ *Tài khoản VETC:* Hoạt động tốt\n\n🔗 _Xem chi tiết sổ xe: https://elantra-care.vercel.app_`;
 
     // A. Kiểm tra nếu có Bot Token & Chat ID -> Gửi trực tiếp qua Telegram API
     if (telegramBotToken && telegramChatId) {
@@ -292,7 +296,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
       // Kiểm tra định dạng Token (Token bắt buộc phải có dấu : ngăn cách số và chữ)
       if (!cleanToken.includes(':')) {
-        alert("⚠️ Ô 'Bot Token' chưa đúng định dạng!\n\n• Chat ID của anh là: " + cleanChatId + " (Đã đúng ✅)\n• Còn 'Bot Token' là chìa khóa của Bot do @BotFather cấp (dạng 7123456789:AAHk... có dấu hai chấm : ở giữa).\n\nAnh hãy mở Telegram tìm @BotFather và gửi /newbot để lấy mã Token dán vào nhé!");
+        alert("⚠️ Ô 'Bot Token' chưa đúng định dạng!\n\n• Chat ID của anh là: " + cleanChatId + " (Đã đúng ✅)\n• Còn 'Bot Token' là chìa khóa của Bot do @BotFather cấp (dạng 7123456789:AAHk... có dấu hai chấm : ở giữa).\n\nAnh hãy mở Telegram tìm @BotFather để lấy mã Token dán vào nhé!");
         return;
       }
 
@@ -336,7 +340,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
   // 3. Test Zalo Notification
   const handleTestZalo = () => {
-    const alertMessage = `🚗 [HYUNDAI ELANTRA 60K-228.98] - NHẮC BẢO DƯỠNG & BẢO HIỂM:\n👤 Chủ xe: Phạm Quốc Tuấn\n🛣️ ODO hiện tại: 65.023 km\n\n⚠️ CẢNH BÁO:\n• 🛢️ Dầu nhớt động cơ: Quá hạn mốc 60.000 km (Cần thay ngay)\n• 🛡️ Bảo hiểm TNDS: Đến hạn 29/11/2026\n• 📋 Đăng kiểm định kỳ: Đến hạn 29/05/2025\n\n👉 Chi tiết: https://elantra-care.vercel.app`;
+    const alertMessage = `🚗 [HYUNDAI ELANTRA 60K-228.98] - NHẮC BẢO DƯỠNG & BẢO HIỂM:\n👤 Chủ xe: Phạm Quốc Tuấn\n🛣️ ODO hiện tại: 65.023 km\n\n⚠️ CẢNH BÁO:\n• 🛢️ Dầu nhớt động cơ: Quá hạn mốc 60.000 km (Cần thay ngay)\n• 🛡️ Bảo hiểm TNDS (VASS): Đến hạn 07/06/2027\n• 📋 Đăng kiểm định kỳ (6006D): Đến hạn 15/05/2027\n\n👉 Chi tiết: https://elantra-care.vercel.app`;
     
     // Copy to clipboard
     if (navigator.clipboard) {
@@ -400,7 +404,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
                     <ShieldCheck className="w-3.5 h-3.5" /> Chính chủ xác thực
                   </span>
                 </div>
-                <p className="text-xs text-slate-400">Hyundai Elantra • 2.0 AT Xăng • Đời 2022</p>
+                <p className="text-xs text-slate-400">Hyundai Elantra • CN7 1.6 MPI 6AT • Đời 2022 (Việt Nam)</p>
               </div>
             </div>
 
@@ -416,12 +420,13 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
           {/* Detailed Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
-            {/* Chủ xe */}
+            {/* Chủ xe & GPLX */}
             <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1">
               <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" /> Chủ phương tiện
+                <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> Chủ xe & GPLX Hạng C
               </span>
-              <p className="text-sm font-bold text-slate-100">{vehicle?.owner_name || 'Phạm Quốc Tuấn'}</p>
+              <p className="text-sm font-bold text-slate-100">{vehicle?.owner_name || 'Phạm Quốc Tuấn'} (1979)</p>
+              <p className="text-[11px] text-cyan-300 font-mono">GPLX: 740009000756 (27/09/2029)</p>
             </div>
 
             {/* Biển số xe */}
@@ -432,6 +437,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               <p className="text-sm font-bold font-mono text-cyan-300 tracking-wider">
                 {vehicle?.license_plate || '60K-228.98'}
               </p>
+              <p className="text-[11px] text-slate-400">Đồng Nai • Cẩm Đường, Long Thành</p>
             </div>
 
             {/* Ngày ĐKBH & Năm SX */}
@@ -442,6 +448,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               <p className="text-sm font-bold text-slate-100">
                 29/11/2022 <span className="text-xs font-normal text-slate-400">(Năm SX: 2022)</span>
               </p>
+              <p className="text-[11px] text-emerald-400 font-medium">Bảo hành 5 năm đến 29/11/2027</p>
             </div>
 
             {/* Số khung (VIN) */}
@@ -454,24 +461,26 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               </p>
             </div>
 
-            {/* Số máy */}
+            {/* Số máy & Thông số động cơ */}
             <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1">
               <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Số máy động cơ
+                <Cpu className="w-3.5 h-3.5 text-cyan-400" /> Động cơ & Số máy
               </span>
               <p className="text-xs font-mono font-bold text-slate-200 tracking-wider">
                 {vehicle?.engine_no || 'G4FGNU243843'}
               </p>
+              <p className="text-[11px] text-slate-400">1.591 cm³ • 93 kW (~128 mã lực)</p>
             </div>
 
-            {/* Đại lý chăm sóc chính */}
+            {/* Đăng kiểm & Thông số lốp */}
             <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1">
               <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-cyan-400" /> Đại lý chăm sóc chính
+                <Gauge className="w-3.5 h-3.5 text-cyan-400" /> Sổ Đăng Kiểm & Cỡ Lốp
               </span>
-              <p className="text-xs font-semibold text-slate-200 truncate">
-                Hyundai Ngọc Phát (Amata)
+              <p className="text-xs font-semibold text-emerald-300 truncate">
+                Sổ: VA 0765744 (15/05/2027)
               </p>
+              <p className="text-[11px] text-slate-400">Lốp: 195/65R15 • Tự trọng 1.200 kg</p>
             </div>
           </div>
         </div>
@@ -515,12 +524,14 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
                       doc.type === 'INSURANCE_TNDS' ? 'bg-blue-500/20 text-blue-400' :
                       doc.type === 'INSURANCE_BODY' ? 'bg-amber-500/20 text-amber-400' :
                       doc.type === 'REGISTRY_INSPECTION' ? 'bg-emerald-500/20 text-emerald-400' :
+                      doc.type === 'DRIVER_LICENSE' ? 'bg-indigo-500/20 text-indigo-400' :
                       doc.type === 'TOLL_VETC' ? 'bg-cyan-500/20 text-cyan-400' :
                       'bg-purple-500/20 text-purple-400'
                     }`}>
                       {doc.type === 'INSURANCE_TNDS' && <FileCheck className="w-5 h-5" />}
                       {doc.type === 'INSURANCE_BODY' && <ShieldCheck className="w-5 h-5" />}
                       {doc.type === 'REGISTRY_INSPECTION' && <FileText className="w-5 h-5" />}
+                      {doc.type === 'DRIVER_LICENSE' && <UserCheck className="w-5 h-5" />}
                       {doc.type === 'TOLL_VETC' && <CreditCard className="w-5 h-5" />}
                       {doc.type === 'FACTORY_WARRANTY' && <Shield className="w-5 h-5" />}
                     </div>

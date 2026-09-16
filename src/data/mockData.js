@@ -13,12 +13,21 @@ export const INITIAL_VEHICLE = {
   make: 'Hyundai',
   model: 'Elantra',
   year: 2022,
-  trim: '2.0 AT (Xăng)',
+  trim: 'CN7 1.6 MPI 6AT (Xăng)',
   license_plate: '60K-228.98',
-  vin: 'RLULL41BBNT000481', // Số khung từ phiếu Hãng
-  engine_no: 'G4FGNU243843', // Số máy từ phiếu Hãng
+  vin: 'RLULL41BBNT000481', // Số khung từ Giấy kiểm định & Hãng
+  engine_no: 'G4FGNU243843', // Số máy từ Giấy kiểm định & Hãng
   reg_date: '2022-11-29', // Ngày ĐKBH từ phiếu Hãng
   owner_name: 'Phạm Quốc Tuấn',
+  dob: '10/01/1979',
+  address: 'Xã Cẩm Đường, Huyện Long Thành, Tỉnh Đồng Nai',
+  driver_license_no: '740009000756', // Hạng C
+  driver_license_expiry: '2029-09-27',
+  engine_displacement: '1.591 cm³ (1.6L MPI)',
+  engine_power: '93 kW / 6.300 rpm (~128 HP)',
+  tire_spec: '195/65R15',
+  curb_weight: '1.200 kg',
+  gross_weight: '1.750 kg',
   current_odo: 65023,
   fuel_capacity: 47.0, // Lít
   fuel_type: 'RON 95-III',
@@ -29,44 +38,54 @@ export const INITIAL_LEGAL_DOCUMENTS = [
   {
     id: 'doc-tnds',
     type: 'INSURANCE_TNDS',
-    title: 'Bảo hiểm TNDS bắt buộc',
-    provider: 'Bảo Việt (hoặc PVI / PTI)',
-    contract_no: 'BV-TNDS-60K22898',
-    issue_date: '2025-11-29',
-    expiry_date: '2026-11-29',
-    fee: 480700,
+    title: 'Bảo hiểm TNDS Bắt Buộc & Tự Nguyện',
+    provider: 'Bảo hiểm Viễn Đông (VASS TP.HCM)',
+    contract_no: 'OTOBB25 3140025',
+    issue_date: '2025-11-07',
+    expiry_date: '2027-06-07', // Đến 17h03 ngày 07/06/2027
+    fee: 1761150,
     status: 'ACTIVE',
     alert_days: 30,
-    note: 'Bảo hiểm trách nhiệm dân sự bắt buộc của chủ xe cơ giới'
-  },
-  {
-    id: 'doc-body',
-    type: 'INSURANCE_BODY',
-    title: 'Bảo hiểm Vật chất Thân vỏ xe',
-    provider: 'Bảo hiểm Bảo Việt (Gói Vàng)',
-    contract_no: 'BV-VC-2025-9889',
-    issue_date: '2025-11-29',
-    expiry_date: '2026-11-29',
-    fee: 8200000,
-    deductible: 500000, // Khấu trừ 500k/vụ
-    coverage_terms: ['Thủy kích ngập nước', 'Mất cắp bộ phận', 'Sửa chữa tại Garage chính hãng Hyundai'],
-    status: 'ACTIVE',
-    alert_days: 30,
-    note: 'Bảo hiểm thân vỏ toàn diện mở rộng thủy kích và gara chính hãng'
+    note: 'GCN số OTOBB25 3140025: TNDS 150tr/người + BH tự nguyện người ngồi trên xe (10tr/người)'
   },
   {
     id: 'doc-registry',
     type: 'REGISTRY_INSPECTION',
-    title: 'Đăng kiểm xe cơ giới & Phí đường bộ',
-    station: 'Trung tâm Đăng kiểm 60-01S (Biên Hòa - Đồng Nai)',
-    stamp_no: 'KD-889922',
-    issue_date: '2024-11-29',
-    expiry_date: '2026-11-29', // Chu kỳ xe gia đình dưới 7 năm là 24 tháng
+    title: 'Đăng kiểm An toàn Kỹ thuật & BV Môi trường',
+    station: 'TT Đăng kiểm 6006D - Đồng Nai',
+    stamp_no: 'VA 0765744',
+    report_no: '6006D-08056/23',
+    issue_date: '2023-05-16',
+    expiry_date: '2027-05-15', // Đến hết ngày 15/05/2027
     fee: 340000,
-    road_fee_expiry: '2026-11-29',
+    road_fee_expiry: '2027-05-15',
     status: 'ACTIVE',
     alert_days: 45,
-    note: 'Sổ kiểm định an toàn kỹ thuật và bảo vệ môi trường xe cơ giới'
+    note: 'Số quản lý: 6001S-159002 | Xe con không kinh doanh vận tải (Hạn kiểm định 15/05/2027)'
+  },
+  {
+    id: 'doc-gplx',
+    type: 'DRIVER_LICENSE',
+    title: 'Giấy phép lái xe (GPLX Hạng C)',
+    provider: 'Sở GTVT Đồng Nai',
+    contract_no: '740009000756',
+    issue_date: '2024-09-27',
+    expiry_date: '2029-09-27', // Đến hết ngày 27/09/2029
+    status: 'ACTIVE',
+    alert_days: 60,
+    note: 'Chủ xe: Phạm Quốc Tuấn (10/01/1979) - Cẩm Đường, Long Thành, Đồng Nai'
+  },
+  {
+    id: 'doc-warranty',
+    type: 'FACTORY_WARRANTY',
+    title: 'Bảo hành chính hãng Hyundai (5 Năm / 100.000 km)',
+    provider: 'Hyundai Thành Công / TC Motor',
+    start_date: '2022-11-29',
+    expiry_date: '2027-11-29',
+    max_odo: 100000,
+    status: 'ACTIVE',
+    alert_days: 60,
+    note: 'Chính sách bảo hành toàn diện 5 năm hoặc 100.000 km từ ngày đăng ký xe (29/11/2022)'
   },
   {
     id: 'doc-vetc',
@@ -80,17 +99,6 @@ export const INITIAL_LEGAL_DOCUMENTS = [
     linked_plate: '60K-228.98',
     status: 'ACTIVE',
     note: 'Dùng qua trạm thu phí cao tốc Long Thành - Dầu Giây, Phan Thiết...'
-  },
-  {
-    id: 'doc-warranty',
-    type: 'FACTORY_WARRANTY',
-    title: 'Bảo hành chính hãng Hyundai (5 Năm / 100.000 km)',
-    provider: 'Hyundai Thành Công / TC Motor',
-    start_date: '2022-11-29',
-    expiry_date: '2027-11-29',
-    max_odo: 100000,
-    status: 'ACTIVE',
-    note: 'Chính sách bảo hành toàn diện 5 năm hoặc 100.000 km từ ngày đăng ký'
   }
 ];
 
