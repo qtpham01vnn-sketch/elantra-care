@@ -5,8 +5,8 @@ import { formatKm } from '../services/vehicleService';
 
 export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCount, onNavigateToProfile }) {
   return (
-    <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg print:hidden">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-3 shadow-lg print:hidden">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Left: Vehicle & Owner Info (Click to open Profile) */}
         <div 
           onClick={onNavigateToProfile}

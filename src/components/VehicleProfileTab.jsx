@@ -409,9 +409,9 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fadeIn pb-24">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn pb-24">
       {/* 1. THẺ HỒ SƠ XE CHÍNH CHỦ (VEHICLE PASSPORT) */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
         {/* Background Glow */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none" />
@@ -420,13 +420,13 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
           {/* Header Title & Status */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/20">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/20 shrink-0">
                 <Car className="w-6 h-6" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-xl font-bold text-white tracking-wide">Hồ Sơ Xe Điện Tử</h2>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Chính chủ xác thực
                   </span>
                 </div>
@@ -435,9 +435,9 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 text-right">
+              <div className="px-3.5 py-2 rounded-2xl bg-slate-950/80 border border-slate-800 text-right">
                 <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">ODO Tiếp Nhận</span>
-                <span className="text-base font-mono font-bold text-cyan-300">
+                <span className="text-base sm:text-lg font-mono font-bold text-cyan-300">
                   {formatKm(vehicle?.current_odo || 65023)}
                 </span>
               </div>
@@ -445,7 +445,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
           </div>
 
           {/* Detailed Info Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
             {/* Chủ xe & GPLX */}
             <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center gap-3">
               <img 
@@ -485,7 +485,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
             </div>
 
             {/* Số khung (VIN) */}
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1 sm:col-span-2 md:col-span-1">
+            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1">
               <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-cyan-400" /> Số khung (VIN)
               </span>
@@ -502,7 +502,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               <p className="text-xs font-mono font-bold text-slate-200 tracking-wider">
                 {vehicle?.engine_no || 'G4FGNU243843'}
               </p>
-              <p className="text-[11px] text-slate-400">1.591 cm³ • 93 kW (~128 mã lực)</p>
+              <p className="text-[11px] text-slate-400">1.591 cm³ • 93 kW (~128 HP)</p>
             </div>
 
             {/* Đăng kiểm & Thông số lốp */}
@@ -513,15 +513,15 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
               <p className="text-xs font-semibold text-emerald-300 truncate">
                 Sổ: VA 0765744 (15/05/2027)
               </p>
-              <p className="text-[11px] text-slate-400">4 Vỏ KENDA 195/65R15 • Đã cân mâm chì</p>
+              <p className="text-[11px] text-slate-400">4 Vỏ KENDA 195/65R15</p>
             </div>
           </div>
 
           {/* Quick Action Bar for Digital Glovebox & SOS */}
-          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={() => setIsGloveboxOpen(true)}
-              className="flex-1 py-2.5 px-4 bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/40 hover:to-blue-600/40 border border-cyan-500/50 hover:border-cyan-400 text-cyan-200 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/40 hover:to-blue-600/40 border border-cyan-500/50 hover:border-cyan-400 text-cyan-200 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95"
             >
               <FileText className="w-4 h-4 text-cyan-400" />
               <span>🗂️ Mở Hộp Giấy Tờ Số (GPLX C, Đăng kiểm, Bảo hiểm VASS)</span>
@@ -529,7 +529,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
 
             <button
               onClick={() => setIsSosOpen(true)}
-              className="py-2.5 px-4 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/50 hover:border-rose-400 text-rose-200 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+              className="py-3 px-4 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/50 hover:border-rose-400 text-rose-200 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
             >
               <AlertTriangle className="w-4 h-4 text-rose-400 animate-pulse" />
               <span>🆘 Cứu Hộ Khẩn Cấp & Hotline</span>
@@ -538,443 +538,378 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
         </div>
       </div>
 
-      {/* 2. THEO DÕI VỎ XE KENDA & VÒNG ĐỜI PHỤ TÙNG HAO MÒN */}
-      <PartsLifecycleCard currentOdo={vehicle?.current_odo || 65030} />
+      {/* 2. Responsive 2-Column Split for Desktop Vehicle Profile */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Column: Parts Lifecycle & Paint & Bodywork Quote */}
+        <div className="lg:col-span-6 space-y-5">
+          {/* 2.1 THEO DÕI VỎ XE KENDA & VÒNG ĐỜI PHỤ TÙNG HAO MÒN */}
+          <PartsLifecycleCard currentOdo={vehicle?.current_odo || 65030} />
 
-      {/* 2.5. DỰ TOÁN & ĐỐI CHIẾU BÁO GIÁ SƠN QUÂY THÂN VỎ, MÂM, LÒNG VÈ */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-rose-950/25 to-slate-950 border border-rose-500/40 shadow-2xl relative overflow-hidden space-y-4">
-        {/* Background ambient glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+          {/* 2.2 DỰ TOÁN & ĐỐI CHIẾU BÁO GIÁ SƠN QUÂY THÂN VỎ, MÂM, LÒNG VÈ */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-rose-950/25 to-slate-950 border border-rose-500/40 shadow-2xl relative overflow-hidden space-y-4">
+            {/* Background ambient glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
-        {/* Top Header */}
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
-              <Wrench className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
-                  Dự Toán Sơn Thân Vỏ, Mâm & Lòng Vè Xe
-                </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                  Báo giá Ô Tô An Bình
-                </span>
-              </div>
-              <p className="text-xs text-slate-400">
-                Đối chiếu giá 3 Gara • Sơn quây đỏ camay • Sơn 4 mâm • Hóa nhựa lòng vè ONZCA
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20 transition-all active:scale-95 shrink-0"
-          >
-            <span>⚖️ Bảng So Sánh & Phiếu Báo Giá Gốc</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Quick Highlights Grid */}
-        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div 
-            onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
-          >
-            <span className="text-xs text-slate-400 uppercase font-bold block">1. Sơn Quây Xe</span>
-            <span className="text-base font-black text-white font-mono block">12.000.000 đ</span>
-            <span className="text-xs text-rose-300 font-medium block">Đỏ camay sâu bóng</span>
-          </div>
-
-          <div 
-            onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
-          >
-            <span className="text-xs text-slate-400 uppercase font-bold block">2. Sơn 4 Mâm Xe</span>
-            <span className="text-base font-black text-white font-mono block">2.000.000 đ</span>
-            <span className="text-xs text-slate-300 font-medium block">500k / bánh</span>
-          </div>
-
-          <div 
-            onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
-          >
-            <span className="text-xs text-slate-400 uppercase font-bold block">3. Lòng Vè ONZCA</span>
-            <span className="text-base font-black text-white font-mono block">3.000.000 đ</span>
-            <span className="text-xs text-cyan-300 font-medium block">Hóa nhựa gốc nước</span>
-          </div>
-
-          <div 
-            onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
-          >
-            <span className="text-xs text-slate-400 uppercase font-bold block">4. Dọn Nội Thất</span>
-            <span className="text-base font-black text-emerald-400 font-mono block">TẶNG KÈM 0 đ</span>
-            <span className="text-xs text-emerald-300 font-medium block">Khử mùi diệt khuẩn</span>
-          </div>
-        </div>
-
-        {/* Summary Footer Bar */}
-        <div className="relative z-10 p-4 bg-slate-950/95 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs sm:text-sm">
-            <span className="text-slate-300 font-medium">Tổng gói An Bình: </span>
-            <strong className="text-lg font-mono text-rose-400 font-black">17.000.000 đ</strong>
-            <span className="text-xs text-slate-400"> (Tiết kiệm ~9.7tr so với Hãng)</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4" /> Bảo hành sơn 24 tháng
-            </span>
-            <button
-              onClick={() => setIsBodyPaintQuoteOpen(true)}
-              className="text-xs sm:text-sm text-cyan-300 hover:text-cyan-200 font-bold underline underline-offset-2 ml-1"
-            >
-              Mở đối chiếu »
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Shield className="w-5 h-5 text-amber-400" />
-              Thời Hạn Bảo Hiểm, Đăng Kiểm & VETC
-            </h3>
-            <p className="text-xs text-slate-400">
-              Tự động cảnh báo đếm ngược ngày hết hạn để tránh bị phạt và bảo vệ quyền lợi bảo hiểm
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          {documents.map((doc) => {
-            const daysRemaining = getDaysDiff(doc.expiry_date);
-            const isEditing = editingDocId === doc.id;
-            const isExpired = daysRemaining <= 0;
-            const isDueSoon = daysRemaining > 0 && daysRemaining <= (doc.alert_days || 30);
-
-            return (
-              <div 
-                key={doc.id}
-                className={`p-4 rounded-2xl border transition-all relative overflow-hidden ${
-                  isExpired 
-                    ? 'bg-rose-950/20 border-rose-500/40 hover:border-rose-500/60' 
-                    : isDueSoon 
-                      ? 'bg-amber-950/20 border-amber-500/40 hover:border-amber-500/60'
-                      : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2 mb-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                      doc.type === 'INSURANCE_TNDS' ? 'bg-blue-500/20 text-blue-400' :
-                      doc.type === 'INSURANCE_BODY' ? 'bg-amber-500/20 text-amber-400' :
-                      doc.type === 'REGISTRY_INSPECTION' ? 'bg-emerald-500/20 text-emerald-400' :
-                      doc.type === 'DRIVER_LICENSE' ? 'bg-indigo-500/20 text-indigo-400' :
-                      doc.type === 'TOLL_VETC' ? 'bg-cyan-500/20 text-cyan-400' :
-                      'bg-purple-500/20 text-purple-400'
-                    }`}>
-                      {doc.type === 'INSURANCE_TNDS' && <FileCheck className="w-5 h-5" />}
-                      {doc.type === 'INSURANCE_BODY' && <ShieldCheck className="w-5 h-5" />}
-                      {doc.type === 'REGISTRY_INSPECTION' && <FileText className="w-5 h-5" />}
-                      {doc.type === 'DRIVER_LICENSE' && <UserCheck className="w-5 h-5" />}
-                      {doc.type === 'TOLL_VETC' && <CreditCard className="w-5 h-5" />}
-                      {doc.type === 'FACTORY_WARRANTY' && <Shield className="w-5 h-5" />}
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-100">{doc.title}</h4>
-                      <p className="text-[11px] text-slate-400 truncate max-w-[200px]">
-                        {doc.provider || doc.station}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Expiration Countdown Badge */}
-                  {doc.expiry_date && (
-                    <div className="text-right">
-                      {isExpired ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
-                          ĐÃ HẾT HẠN
-                        </span>
-                      ) : isDueSoon ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                          CÒN {daysRemaining} NGÀY
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          CÒN {daysRemaining} NGÀY
-                        </span>
-                      )}
-                    </div>
-                  )}
+            {/* Top Header */}
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
+                  <Wrench className="w-6 h-6" />
                 </div>
-
-                {/* Edit Form or Detail Display */}
-                {isEditing ? (
-                  <div className="space-y-2 pt-2 border-t border-slate-800">
-                    <div>
-                      <label className="text-[10px] text-slate-400 block mb-0.5">Đơn vị cấp / Trung tâm</label>
-                      <input 
-                        type="text"
-                        value={editProvider}
-                        onChange={(e) => setEditProvider(e.target.value)}
-                        className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 block mb-0.5">Ngày hết hạn (YYYY-MM-DD)</label>
-                      <input 
-                        type="date"
-                        value={editExpiryDate}
-                        onChange={(e) => setEditExpiryDate(e.target.value)}
-                        className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none"
-                      />
-                    </div>
-                    <div className="flex justify-end gap-1.5 pt-1">
-                      <button 
-                        onClick={() => setEditingDocId(null)}
-                        className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
-                      >
-                        Hủy
-                      </button>
-                      <button 
-                        onClick={() => handleSaveEdit(doc.id)}
-                        className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
-                      >
-                        <Check className="w-3 h-3" /> Lưu
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5 pt-2 border-t border-slate-800/80 text-xs text-slate-300">
-                    {doc.expiry_date && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Hạn hết hiệu lực:</span>
-                        <span className="font-mono font-bold text-slate-200">{doc.expiry_date}</span>
-                      </div>
-                    )}
-                    
-                    {doc.contract_no && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Số HĐ / Mã:</span>
-                        <span className="font-mono text-[11px] text-slate-300">{doc.contract_no}</span>
-                      </div>
-                    )}
-
-                    {doc.current_balance !== undefined && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Số dư VETC:</span>
-                        <strong className="text-emerald-400 font-mono">{formatCurrency(doc.current_balance)}</strong>
-                      </div>
-                    )}
-
-                    {doc.coverage_terms && (
-                      <div className="text-[11px] text-slate-400 pt-0.5">
-                        <span className="text-amber-300 font-medium">Quyền lợi: </span>
-                        {doc.coverage_terms.join(' • ')}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-1 text-[11px]">
-                      <span className="text-slate-500 italic truncate max-w-[240px]">{doc.note}</span>
-                      <button 
-                        onClick={() => handleStartEdit(doc)}
-                        className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold p-1 hover:bg-slate-800 rounded-lg transition-colors"
-                        title="Chỉnh sửa ngày hết hạn từ giấy tờ thực tế"
-                      >
-                        <Edit3 className="w-3 h-3" /> Sửa ngày
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3. CÀI ĐẶT KÊNH NHẬN THÔNG BÁO & NHẮC NHỞ (NOTIFICATION CHANNELS) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-cyan-400" />
-              Cài Đặt Nhận Nhắc Nhở Tự Động (Realtime Alerts)
-            </h3>
-            <p className="text-xs text-slate-400">
-              Tùy chọn nhận thông báo qua Màn hình khóa Điện thoại, Telegram hoặc Zalo
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-          {/* Kênh 1: Thông báo đẩy Điện thoại */}
-          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <h4 className="text-xs font-bold text-slate-100">Thông báo Điện thoại</h4>
-                </div>
-                {pushStatus === 'granted' ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    ĐÃ BẬT
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
-                    CHƯA BẬT
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Nhận thông báo đẩy trực tiếp lên màn hình khóa khi đến hạn bảo dưỡng & đăng kiểm.
-              </p>
-            </div>
-
-            <button
-              onClick={handleRequestPushPermission}
-              className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
-            >
-              <Bell className="w-3.5 h-3.5" />
-              {pushStatus === 'granted' ? 'Gửi thử thông báo Test' : 'Bật thông báo đẩy ngay'}
-            </button>
-          </div>
-
-          {/* Kênh 2: Nhắn tin Telegram */}
-          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                    <Send className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-100">Nhắn tin Telegram</h4>
-                    <span className="text-[10px] text-blue-400 font-medium">
-                      {telegramBotToken && telegramChatId ? '🟢 Bot tự động sẵn sàng' : '🟡 Chế độ Share 1 chạm'}
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                      Dự Toán Sơn Thân Vỏ, Mâm & Lòng Vè Xe
+                    </h3>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                      Báo giá Ô Tô An Bình
                     </span>
                   </div>
+                  <p className="text-xs text-slate-400">
+                    Đối chiếu giá 3 Gara • Sơn quây đỏ camay • Sơn 4 mâm • Hóa nhựa lòng vè ONZCA
+                  </p>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={telegramEnabled}
-                  onChange={(e) => setTelegramEnabled(e.target.checked)}
-                  className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
-                />
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] text-slate-400">Telegram Chat ID (dạng số)</label>
-                  <button
-                    type="button"
-                    onClick={() => setShowTelegramConfig(!showTelegramConfig)}
-                    className="text-[10px] text-cyan-400 hover:text-cyan-300 underline"
-                  >
-                    {showTelegramConfig ? 'Thu gọn' : '⚙️ Đấu nối Bot'}
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={telegramChatId}
-                  onChange={(e) => {
-                    setTelegramChatId(e.target.value);
-                    if (typeof window !== 'undefined') {
-                      localStorage.setItem('elantra_telegram_chat_id', e.target.value);
-                    }
-                  }}
-                  placeholder="VD: 543219876 (tìm trong @userinfobot)"
-                  className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              {/* Collapsible Bot Token Config */}
-              {showTelegramConfig && (
-                <div className="p-2.5 bg-blue-950/40 border border-blue-800/60 rounded-xl space-y-2 animate-in fade-in duration-200">
-                  <div>
-                    <label className="text-[10px] text-blue-300 block mb-0.5">Bot Token (từ @BotFather)</label>
-                    <input
-                      type="text"
-                      value={telegramBotToken}
-                      onChange={(e) => {
-                        setTelegramBotToken(e.target.value);
-                        if (typeof window !== 'undefined') {
-                          localStorage.setItem('elantra_telegram_bot_token', e.target.value);
-                        }
-                      }}
-                      placeholder="VD: 7123456789:AAHk..."
-                      className="w-full px-2 py-1 bg-slate-950 border border-blue-700/60 rounded-lg text-[11px] text-yellow-300 font-mono focus:outline-none"
-                    />
-                  </div>
-                  <div className="text-[10px] text-slate-400 leading-tight space-y-0.5">
-                    <p>💡 <b>Cách lấy Chat ID:</b> Nhắn <code className="text-cyan-300">/start</code> vào bot <b className="text-white">@userinfobot</b> trên Telegram.</p>
-                    <p>💡 Khi có Token + Chat ID, hệ thống sẽ <b>tự động bắn tin thẳng vào Telegram</b> không cần bấm Share.</p>
-                  </div>
-                </div>
-              )}
+              <button
+                onClick={() => setIsBodyPaintQuoteOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20 transition-all active:scale-95 shrink-0"
+              >
+                <span>⚖️ Bảng So Sánh & Phiếu Báo Giá Gốc</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
-            <button
-              onClick={handleTestTelegram}
-              className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
-            >
-              <Send className="w-3.5 h-3.5 text-blue-400" />
-              {telegramBotToken && telegramChatId ? '🚀 Bắn tin trực tiếp qua Bot' : 'Test gửi qua Telegram'}
-            </button>
+            {/* Quick Highlights Grid */}
+            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div 
+                onClick={() => setIsBodyPaintQuoteOpen(true)}
+                className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
+              >
+                <span className="text-xs text-slate-400 uppercase font-bold block">1. Sơn Quây Xe</span>
+                <span className="text-base font-black text-white font-mono block">12.000.000 đ</span>
+                <span className="text-xs text-rose-300 font-medium block">Đỏ camay sâu bóng</span>
+              </div>
+
+              <div 
+                onClick={() => setIsBodyPaintQuoteOpen(true)}
+                className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
+              >
+                <span className="text-xs text-slate-400 uppercase font-bold block">2. Sơn 4 Mâm Xe</span>
+                <span className="text-base font-black text-white font-mono block">2.000.000 đ</span>
+                <span className="text-xs text-slate-300 font-medium block">500k / bánh</span>
+              </div>
+
+              <div 
+                onClick={() => setIsBodyPaintQuoteOpen(true)}
+                className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
+              >
+                <span className="text-xs text-slate-400 uppercase font-bold block">3. Lòng Vè ONZCA</span>
+                <span className="text-base font-black text-white font-mono block">3.000.000 đ</span>
+                <span className="text-xs text-cyan-300 font-medium block">Hóa nhựa gốc nước</span>
+              </div>
+
+              <div 
+                onClick={() => setIsBodyPaintQuoteOpen(true)}
+                className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
+              >
+                <span className="text-xs text-slate-400 uppercase font-bold block">4. Dọn Nội Thất</span>
+                <span className="text-base font-black text-emerald-400 font-mono block">TẶNG KÈM 0 đ</span>
+                <span className="text-xs text-emerald-300 font-medium block">Khử mùi diệt khuẩn</span>
+              </div>
+            </div>
+
+            {/* Summary Footer Bar */}
+            <div className="relative z-10 p-4 bg-slate-950/95 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="text-xs sm:text-sm">
+                <span className="text-slate-300 font-medium">Tổng gói An Bình: </span>
+                <strong className="text-lg font-mono text-rose-400 font-black">17.000.000 đ</strong>
+                <span className="text-xs text-slate-400"> (Tiết kiệm ~9.7tr so với Hãng)</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4" /> Bảo hành sơn 24 tháng
+                </span>
+                <button
+                  onClick={() => setIsBodyPaintQuoteOpen(true)}
+                  className="text-xs sm:text-sm text-cyan-300 hover:text-cyan-200 font-bold underline underline-offset-2 ml-1"
+                >
+                  Mở đối chiếu »
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Legal Documents Tracker & Notification Channels */}
+        <div className="lg:col-span-6 space-y-5">
+          {/* 3. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-amber-400" />
+                  Thời Hạn Bảo Hiểm, Đăng Kiểm & VETC
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Tự động cảnh báo đếm ngược ngày hết hạn
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {documents.map((doc) => {
+                const daysRemaining = getDaysDiff(doc.expiry_date);
+                const isEditing = editingDocId === doc.id;
+                const isExpired = daysRemaining <= 0;
+                const isDueSoon = daysRemaining > 0 && daysRemaining <= (doc.alert_days || 30);
+
+                return (
+                  <div 
+                    key={doc.id}
+                    className={`p-4 rounded-2xl border transition-all relative overflow-hidden ${
+                      isExpired 
+                        ? 'bg-rose-950/20 border-rose-500/40 hover:border-rose-500/60' 
+                        : isDueSoon 
+                          ? 'bg-amber-950/20 border-amber-500/40 hover:border-amber-500/60'
+                          : 'bg-slate-900/70 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                          doc.type === 'INSURANCE_TNDS' ? 'bg-blue-500/20 text-blue-400' :
+                          doc.type === 'INSURANCE_BODY' ? 'bg-amber-500/20 text-amber-400' :
+                          doc.type === 'REGISTRY_INSPECTION' ? 'bg-emerald-500/20 text-emerald-400' :
+                          doc.type === 'DRIVER_LICENSE' ? 'bg-indigo-500/20 text-indigo-400' :
+                          doc.type === 'TOLL_VETC' ? 'bg-cyan-500/20 text-cyan-400' :
+                          'bg-purple-500/20 text-purple-400'
+                        }`}>
+                          {doc.type === 'INSURANCE_TNDS' && <FileCheck className="w-5 h-5" />}
+                          {doc.type === 'INSURANCE_BODY' && <ShieldCheck className="w-5 h-5" />}
+                          {doc.type === 'REGISTRY_INSPECTION' && <FileText className="w-5 h-5" />}
+                          {doc.type === 'DRIVER_LICENSE' && <UserCheck className="w-5 h-5" />}
+                          {doc.type === 'TOLL_VETC' && <CreditCard className="w-5 h-5" />}
+                          {doc.type === 'FACTORY_WARRANTY' && <Shield className="w-5 h-5" />}
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-bold text-slate-100">{doc.title}</h4>
+                          <p className="text-[11px] text-slate-400 truncate max-w-[180px]">
+                            {doc.provider || doc.station}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Expiration Countdown Badge */}
+                      {doc.expiry_date && (
+                        <div className="text-right">
+                          {isExpired ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">
+                              ĐÃ HẾT HẠN
+                            </span>
+                          ) : isDueSoon ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                              CÒN {daysRemaining} NGÀY
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                              CÒN {daysRemaining} NGÀY
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Edit Form or Detail Display */}
+                    {isEditing ? (
+                      <div className="space-y-2 pt-2 border-t border-slate-800">
+                        <div>
+                          <label className="text-[10px] text-slate-400 block mb-0.5">Đơn vị cấp / Trung tâm</label>
+                          <input 
+                            type="text"
+                            value={editProvider}
+                            onChange={(e) => setEditProvider(e.target.value)}
+                            className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-100 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-slate-400 block mb-0.5">Ngày hết hạn (YYYY-MM-DD)</label>
+                          <input 
+                            type="date"
+                            value={editExpiryDate}
+                            onChange={(e) => setEditExpiryDate(e.target.value)}
+                            className="w-full px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs text-cyan-300 font-mono focus:outline-none"
+                          />
+                        </div>
+                        <div className="flex justify-end gap-1.5 pt-1">
+                          <button 
+                            onClick={() => setEditingDocId(null)}
+                            className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
+                          >
+                            Hủy
+                          </button>
+                          <button 
+                            onClick={() => handleSaveEdit(doc.id)}
+                            className="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
+                          >
+                            <Check className="w-3 h-3" /> Lưu
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 pt-2 border-t border-slate-800/80 text-xs text-slate-300">
+                        {doc.expiry_date && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">Hạn hiệu lực:</span>
+                            <span className="font-mono font-bold text-slate-200">{doc.expiry_date}</span>
+                          </div>
+                        )}
+                        
+                        {doc.contract_no && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">Số HĐ:</span>
+                            <span className="font-mono text-[11px] text-slate-300">{doc.contract_no}</span>
+                          </div>
+                        )}
+
+                        {doc.current_balance !== undefined && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">Số dư VETC:</span>
+                            <strong className="text-emerald-400 font-mono">{formatCurrency(doc.current_balance)}</strong>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between pt-1 text-[11px]">
+                          <span className="text-slate-500 italic truncate max-w-[200px]">{doc.note}</span>
+                          <button 
+                            onClick={() => handleStartEdit(doc)}
+                            className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-semibold p-1 hover:bg-slate-800 rounded-lg transition-colors"
+                          >
+                            <Edit3 className="w-3 h-3" /> Sửa
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Kênh 3: Nhắn tin Zalo */}
-          <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-300 flex items-center justify-center font-bold text-xs">
-                    Zalo
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-100">Nhắn tin Zalo</h4>
-                    <span className="text-[10px] text-slate-400">Lưu nhanh Cloud / Gửi tin</span>
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={zaloEnabled}
-                  onChange={(e) => setZaloEnabled(e.target.checked)}
-                  className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
-                />
-              </div>
-
+          {/* 4. CÀI ĐẶT KÊNH NHẬN THÔNG BÁO & NHẮC NHỞ (NOTIFICATION CHANNELS) */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="text-[10px] text-slate-400 block mb-0.5">Số điện thoại Zalo nhận tin</label>
-                <input
-                  type="text"
-                  value={zaloPhone}
-                  onChange={(e) => setZaloPhone(e.target.value)}
-                  placeholder="0977xxxxxx"
-                  className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs text-emerald-400 font-mono font-bold focus:outline-none"
-                />
-              </div>
-
-              <div className="p-2 bg-slate-950/60 rounded-lg border border-slate-800/80 text-[10px] text-slate-400 leading-tight">
-                ℹ️ Zalo cá nhân không mở API tự bắn tin ngầm. Bấm nút dưới để <b>tự động copy & mở Zalo</b> dán vào Cloud của tôi.
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-cyan-400" />
+                  Cài Đặt Nhận Nhắc Nhở Tự Động
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Thông báo qua Màn hình khóa Điện thoại, Telegram hoặc Zalo
+                </p>
               </div>
             </div>
 
-            <button
-              onClick={handleTestZalo}
-              className="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              Copy & Mở Zalo 0977138673
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              {/* Kênh 1: Thông báo đẩy Điện thoại */}
+              <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                        <Smartphone className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-100">Điện thoại</h4>
+                    </div>
+                    {pushStatus === 'granted' ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        ĐÃ BẬT
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                        CHƯA BẬT
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Nhận thông báo đẩy lên màn hình khóa khi đến hạn.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleRequestPushPermission}
+                  className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95"
+                >
+                  <Bell className="w-3.5 h-3.5" />
+                  {pushStatus === 'granted' ? 'Gửi thông báo Test' : 'Bật thông báo'}
+                </button>
+              </div>
+
+              {/* Kênh 2: Nhắn tin Telegram */}
+              <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                        <Send className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-100">Telegram</h4>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={telegramEnabled}
+                      onChange={(e) => setTelegramEnabled(e.target.checked)}
+                      className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    ID: <span className="font-mono text-cyan-300 font-bold">{telegramChatId}</span>
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowTelegramConfig(!showTelegramConfig)}
+                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-xl text-xs font-semibold"
+                >
+                  Cấu hình Bot
+                </button>
+              </div>
+
+              {/* Kênh 3: Zalo */}
+              <div className="p-4 bg-slate-900/70 border border-slate-800 rounded-2xl flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-100">Zalo OA</h4>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={zaloEnabled}
+                      onChange={(e) => setZaloEnabled(e.target.checked)}
+                      className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    SĐT: <span className="font-mono text-cyan-300 font-bold">{zaloPhone}</span>
+                  </p>
+                </div>
+
+                <a
+                  href={`https://zalo.me/${zaloPhone}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 text-center"
+                >
+                  Mở Zalo
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

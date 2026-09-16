@@ -70,7 +70,7 @@ export default function TimelineTab({
   });
 
   return (
-    <div className="space-y-4 pb-24 max-w-4xl mx-auto px-4 pt-4">
+    <div className="space-y-4 pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
       {/* Search & Filter Header */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
