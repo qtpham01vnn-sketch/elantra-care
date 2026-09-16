@@ -19,6 +19,7 @@ export const INITIAL_VEHICLE = {
   engine_no: 'G4FGNU243843', // Số máy từ Giấy kiểm định & Hãng
   reg_date: '2022-11-29', // Ngày ĐKBH từ phiếu Hãng
   owner_name: 'Phạm Quốc Tuấn',
+  owner_avatar: '/avatar_tuan.jpg',
   dob: '10/01/1979',
   cccd: '052079020040',
   phone: '0977138673',

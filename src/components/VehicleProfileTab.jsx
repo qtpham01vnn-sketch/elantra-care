@@ -435,12 +435,19 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
           {/* Detailed Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
             {/* Chủ xe & GPLX */}
-            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl space-y-1">
-              <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> Chủ xe & GPLX Hạng C
-              </span>
-              <p className="text-sm font-bold text-slate-100">{vehicle?.owner_name || 'Phạm Quốc Tuấn'} (1979)</p>
-              <p className="text-[11px] text-cyan-300 font-mono">GPLX: 740009000756 (27/09/2029)</p>
+            <div className="p-3.5 bg-slate-950/60 border border-slate-800/80 rounded-2xl flex items-center gap-3">
+              <img 
+                src={vehicle?.owner_avatar || "/avatar_tuan.jpg"} 
+                alt={vehicle?.owner_name || 'Phạm Quốc Tuấn'} 
+                className="w-12 h-12 rounded-xl object-cover ring-2 ring-cyan-500/40 shadow-md shadow-cyan-500/20 shrink-0"
+              />
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                  <UserCheck className="w-3.5 h-3.5 text-cyan-400" /> Chủ xe & GPLX Hạng C
+                </span>
+                <p className="text-sm font-bold text-slate-100 truncate">{vehicle?.owner_name || 'Phạm Quốc Tuấn'} (1979)</p>
+                <p className="text-[11px] text-cyan-300 font-mono truncate">GPLX: 740009000756 (27/09/2029)</p>
+              </div>
             </div>
 
             {/* Biển số xe */}

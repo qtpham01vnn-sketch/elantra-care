@@ -7,14 +7,28 @@ export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCou
   return (
     <header className="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg print:hidden">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
-        {/* Left: Vehicle Quick Info (Click to open Profile) */}
+        {/* Left: Vehicle & Owner Info (Click to open Profile) */}
         <div 
           onClick={onNavigateToProfile}
           className="flex items-center space-x-3 cursor-pointer group p-1 -ml-1 rounded-xl hover:bg-slate-800/60 transition-all"
           title="Bấm để xem Hồ sơ xe & Lộ trình vào xưởng chi tiết"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-            <Car className="w-5 h-5" />
+          <div className="relative">
+            <img 
+              src={vehicle.owner_avatar || "/avatar_tuan.jpg"} 
+              alt={vehicle.owner_name || "Phạm Quốc Tuấn"}
+              className="w-10 h-10 rounded-xl object-cover ring-2 ring-cyan-500/50 shadow-md shadow-cyan-500/20 group-hover:scale-105 group-hover:ring-cyan-400 transition-all"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.nextElementSibling) {
+                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                }
+              }}
+            />
+            <div className="hidden w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 items-center justify-center text-white shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+              <Car className="w-5 h-5" />
+            </div>
+            <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full" title="Chủ xe online"></span>
           </div>
           <div>
             <div className="flex items-center space-x-2">
@@ -26,6 +40,8 @@ export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCou
               </span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-slate-400">
+              <span className="text-cyan-300 font-medium">Anh Tuấn</span>
+              <span>•</span>
               <span className="text-slate-300 font-medium font-mono">ODO: {formatKm(vehicle.current_odo)}</span>
               <span>•</span>
               <span>{vehicle.year} ({vehicle.trim})</span>

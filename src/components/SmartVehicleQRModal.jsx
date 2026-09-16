@@ -68,18 +68,25 @@ export default function SmartVehicleQRModal({ isOpen, onClose, vehicle }) {
             />
           </div>
 
-          <div className="space-y-1">
-            <div className="flex items-center justify-center gap-2">
-              <span className="font-mono font-bold text-xl text-cyan-300">
-                {vehicle?.license_plate || '60K-228.98'}
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                Hyundai Elantra 2022
-              </span>
+          <div className="flex items-center justify-center gap-3">
+            <img
+              src={vehicle?.owner_avatar || "/avatar_tuan.jpg"}
+              alt={vehicle?.owner_name || "Phạm Quốc Tuấn"}
+              className="w-11 h-11 rounded-xl object-cover ring-2 ring-cyan-500/50 shadow-md shadow-cyan-500/20"
+            />
+            <div className="text-left space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-bold text-lg text-cyan-300">
+                  {vehicle?.license_plate || '60K-228.98'}
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  Hyundai Elantra 2022
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Chủ xe: <b className="text-slate-200">{vehicle?.owner_name || 'Phạm Quốc Tuấn'}</b> • ODO: <b className="text-cyan-400">{formatKm(vehicle?.current_odo || 65030)}</b>
+              </p>
             </div>
-            <p className="text-xs text-slate-400">
-              Chủ xe: <b>{vehicle?.owner_name || 'Phạm Quốc Tuấn'}</b> • ODO: <b>{formatKm(vehicle?.current_odo || 65030)}</b>
-            </p>
           </div>
 
           {/* Quick Summary for Mechanics */}

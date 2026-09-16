@@ -151,15 +151,25 @@ export default function VETCWalletModal({ isOpen, onClose, vehicle }) {
               </div>
 
               {/* Personal info & Legal */}
-              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-2xl space-y-2 text-xs">
-                <h4 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  Thông tin chủ tài khoản định danh VETC
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300 pt-1 font-mono">
+              <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-2xl space-y-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={vehicle?.owner_avatar || "/avatar_tuan.jpg"}
+                    alt={vetcInfo.owner}
+                    className="w-11 h-11 rounded-xl object-cover ring-2 ring-emerald-500/40 shadow-md shadow-emerald-500/20 shrink-0"
+                  />
                   <div>
-                    <span className="text-[10px] text-slate-500 block">Chủ ví:</span>
-                    <span className="text-slate-200 font-bold">{vetcInfo.owner}</span>
+                    <h4 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      Chủ tài khoản định danh VETC
+                    </h4>
+                    <p className="text-sm font-bold text-emerald-300">{vetcInfo.owner}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300 pt-1 font-mono border-t border-slate-800/80">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Số điện thoại:</span>
+                    <span className="text-slate-200 font-bold">{vetcInfo.phone}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 block">Số CCCD:</span>
