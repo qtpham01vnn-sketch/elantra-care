@@ -580,56 +580,56 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div 
             onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
           >
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">1. Sơn Quây Nguyên Xe</span>
-            <span className="text-sm font-bold text-slate-100 font-mono">12.000.000 đ</span>
-            <span className="text-[10px] text-rose-300 block">Đỏ camay sâu bóng</span>
+            <span className="text-xs text-slate-400 uppercase font-bold block">1. Sơn Quây Xe</span>
+            <span className="text-base font-black text-white font-mono block">12.000.000 đ</span>
+            <span className="text-xs text-rose-300 font-medium block">Đỏ camay sâu bóng</span>
           </div>
 
           <div 
             onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
           >
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">2. Sơn 4 Mâm Xe</span>
-            <span className="text-sm font-bold text-slate-100 font-mono">2.000.000 đ</span>
-            <span className="text-[10px] text-slate-400 block">500.000 đ / cái</span>
+            <span className="text-xs text-slate-400 uppercase font-bold block">2. Sơn 4 Mâm Xe</span>
+            <span className="text-base font-black text-white font-mono block">2.000.000 đ</span>
+            <span className="text-xs text-slate-300 font-medium block">500k / bánh</span>
           </div>
 
           <div 
             onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
           >
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">3. Lòng Vè Sau ONZCA</span>
-            <span className="text-sm font-bold text-slate-100 font-mono">3.000.000 đ</span>
-            <span className="text-[10px] text-cyan-300 block">Hóa nhựa gốc nước</span>
+            <span className="text-xs text-slate-400 uppercase font-bold block">3. Lòng Vè ONZCA</span>
+            <span className="text-base font-black text-white font-mono block">3.000.000 đ</span>
+            <span className="text-xs text-cyan-300 font-medium block">Hóa nhựa gốc nước</span>
           </div>
 
           <div 
             onClick={() => setIsBodyPaintQuoteOpen(true)}
-            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+            className="p-3.5 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-1"
           >
-            <span className="text-[10px] text-slate-400 uppercase font-semibold block">4. Dọn Nội Thất</span>
-            <span className="text-sm font-bold text-emerald-400 font-mono">TẶNG KÈM (0 đ)</span>
-            <span className="text-[10px] text-emerald-300 block">Khử mùi diệt khuẩn</span>
+            <span className="text-xs text-slate-400 uppercase font-bold block">4. Dọn Nội Thất</span>
+            <span className="text-base font-black text-emerald-400 font-mono block">TẶNG KÈM 0 đ</span>
+            <span className="text-xs text-emerald-300 font-medium block">Khử mùi diệt khuẩn</span>
           </div>
         </div>
 
         {/* Summary Footer Bar */}
-        <div className="relative z-10 p-3.5 bg-slate-950/90 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs">
-            <span className="text-slate-400">Tổng gói An Bình: </span>
-            <strong className="text-base font-mono text-rose-400 font-extrabold">17.000.000 đ</strong>
-            <span className="text-[11px] text-slate-400"> (Tiết kiệm ~9.7tr so với Hãng 26.7tr)</span>
+        <div className="relative z-10 p-4 bg-slate-950/95 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-xs sm:text-sm">
+            <span className="text-slate-300 font-medium">Tổng gói An Bình: </span>
+            <strong className="text-lg font-mono text-rose-400 font-black">17.000.000 đ</strong>
+            <span className="text-xs text-slate-400"> (Tiết kiệm ~9.7tr so với Hãng)</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Bảo hành sơn 24 tháng
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4" /> Bảo hành sơn 24 tháng
             </span>
             <button
               onClick={() => setIsBodyPaintQuoteOpen(true)}
-              className="text-xs text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2 ml-1"
+              className="text-xs sm:text-sm text-cyan-300 hover:text-cyan-200 font-bold underline underline-offset-2 ml-1"
             >
               Mở đối chiếu »
             </button>
