@@ -152,22 +152,31 @@ export const REAL_GARAGE_ROADMAP = [
     note: 'Bảo hành thay thế cảm biến hệ thống túi khí và căn chỉnh mặt ca-lăng trước.'
   },
   {
+    date: '2026-09-16',
+    time: '11:00',
+    type: 'PERIODIC_MAJOR',
+    title: 'Bảo dưỡng Cấp 3 mốc 65.023 km (Quyết toán LS-VS039-260915-004)',
+    garage: 'Hyundai Ngọc Phát (Chi nhánh Long Bình / Amata)',
+    status: 'COMPLETED',
+    note: 'Đã hoàn tất bảo dưỡng Cấp 3: Thay dầu nhớt 5W-30 (4.5L), lọc nhớt Mobis, lọc nhiên liệu 31112L1000, vệ sinh kim phun, bảo dưỡng phanh & tra mỡ ắc thắng. Thực thanh toán: 3.322.080 đ (tiết kiệm giảm trừ 2.593.080 đ). Hẹn lần sau: 70.023 km hoặc 16/01/2027. CVDV: Cao Nguyên (0358455495).'
+  },
+  {
     date: '2026-09-15',
     time: '07:59',
     type: 'QUOTE',
-    title: 'Báo giá Bảo dưỡng Cấp 3 mốc 65.023 km (Phiếu BG-VS039-260915-004)',
+    title: 'Báo giá ban đầu Cấp 3 mốc 65.023 km (Phiếu BG-VS039-260915-004)',
     garage: 'Hyundai Ngọc Phát (Chi nhánh Amata)',
     status: 'QUOTATION',
-    note: 'Tổng tiền dự kiến 5.421.600 đ (Bao gồm: Lọc xăng 1.026k, Nhớt máy 936k, Lọc nhớt 155k, Công 675k + Phụ gia MT-10 1.350k). Đang thẩm định so sánh.'
+    note: 'Báo giá sơ bộ 5.421.600 đ trước khi tối ưu phụ gia và áp dụng chương trình miễn giảm 2.593.080 đ.'
   },
   {
     date: '2026-09-14',
     time: '14:00',
     type: 'QUOTE',
-    title: 'Báo giá & Hợp đồng dịch vụ mốc 65.010 km',
+    title: 'Báo giá đối ứng & Hợp đồng dịch vụ mốc 65.010 km',
     garage: '1Car Gara Garage Chuyên Nghiệp',
     status: 'QUOTATION',
-    note: 'Tổng tiền dự kiến 9.352.800 đ (Gồm: Bảo dưỡng máy gầm 4.410.000 đ + Đồng sơn thân vỏ phục hồi móp cửa/cản 4.250.000 đ + VAT 8%).'
+    note: 'Báo giá so sánh 9.352.800 đ (Gồm bảo dưỡng máy gầm 4.410.000 đ + Đồng sơn thân vỏ 4.250.000 đ + VAT 8%).'
   }
 ];
 
