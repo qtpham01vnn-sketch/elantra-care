@@ -1,10 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, CheckCircle2, Phone, MapPin, Calendar, Clock, 
   ShieldCheck, Wrench, DollarSign, ExternalLink, Image as ImageIcon,
-  ChevronRight, AlertCircle, FileText, ArrowUpDown, Plus, Edit2, Info
+  ChevronRight, AlertCircle, FileText, ArrowUpDown, Plus, Edit2, Info,
+  Save, RotateCcw, Trash2
 } from 'lucide-react';
 import { formatCurrency } from '../services/vehicleService';
+
+const DEFAULT_GARAGES = [
+  {
+    id: 'an_binh',
+    name: 'Ô Tô An Bình (Biên Hòa)',
+    location: 'Tam Hiệp, Biên Hòa, Đồng Nai',
+    sourceType: 'OFFICIAL_RECEIPT', // Phiếu thực tế có giấy tờ
+    sourceLabel: 'Phiếu báo giá gốc thực tế (16/09/2026)',
+    paintQuote: 12000000,
+    rimQuote: 2000000,
+    fenderQuote: 3000000,
+    cleaning: 0, // Free
+    time: '7 - 10 ngày',
+    warranty: '24 tháng (2 năm)',
+    highlight: 'Giá trọn gói tốt nhất, bảo hành sơn 2 năm rất dài, tặng dọn nội thất.',
+    isRecommended: true,
+    isCustom: false,
+  },
+  {
+    id: '1car_gara',
+    name: '1Car Gara Chuyên Nghiệp',
+    location: 'Biên Hòa, Đồng Nai',
+    sourceType: 'ESTIMATED_MARKET', // Ước tính thị trường
+    sourceLabel: 'Ước tính theo giá thị trường gara tư nhân',
+    paintQuote: 14500000,
+    rimQuote: 2400000,
+    fenderQuote: 3200000,
+    cleaning: 800000,
+    time: '6 - 8 ngày',
+    warranty: '12 tháng (1 năm)',
+    highlight: 'Xưởng sơn phòng kín tiêu chuẩn tư nhân.',
+    isRecommended: false,
+    isCustom: false,
+  },
+  {
+    id: 'hyundai_ngoc_phat',
+    name: 'Hyundai Ngọc Phát (Đại Lý Hãng)',
+    location: 'Amata / Long Bình, Biên Hòa',
+    sourceType: 'ESTIMATED_MARKET', // Ước tính định mức hãng
+    sourceLabel: 'Ước tính theo định mức công & sơn chính hãng',
+    paintQuote: 18500000,
+    rimQuote: 3200000,
+    fenderQuote: 3800000,
+    cleaning: 1200000,
+    time: '10 - 14 ngày',
+    warranty: '12 tháng (1 năm)',
+    highlight: 'Chuẩn màu sơn mã gốc Hãng, phòng sấy tiêu chuẩn Hyundai.',
+    isRecommended: false,
+    isCustom: false,
+  }
+];
 
 export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
   const [activeTab, setActiveTab] = useState('quote_anbinh'); // quote_anbinh, comparison, original_doc
@@ -15,60 +67,42 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
     don_noi_that: true,
   });
 
-  // State for editable comparison garages
-  const [garages, setGarages] = useState([
-    {
-      id: 'an_binh',
-      name: 'Ô Tô An Bình (Biên Hòa)',
-      location: 'Tam Hiệp, Biên Hòa, Đồng Nai',
-      sourceType: 'OFFICIAL_RECEIPT', // Phiếu thực tế có giấy tờ
-      sourceLabel: 'Phiếu báo giá gốc thực tế (16/09/2026)',
-      paintQuote: 12000000,
-      rimQuote: 2000000,
-      fenderQuote: 3000000,
-      cleaning: 0, // Free
-      total: 17000000,
-      time: '7 - 10 ngày',
-      warranty: '24 tháng (2 năm)',
-      highlight: 'Giá trọn gói tốt nhất, bảo hành sơn 2 năm rất dài, tặng dọn nội thất.',
-      isRecommended: true,
-    },
-    {
-      id: '1car_gara',
-      name: '1Car Gara Chuyên Nghiệp',
-      location: 'Biên Hòa, Đồng Nai',
-      sourceType: 'ESTIMATED_MARKET', // Ước tính thị trường
-      sourceLabel: 'Ước tính theo giá thị trường gara tư nhân',
-      paintQuote: 14500000,
-      rimQuote: 2400000,
-      fenderQuote: 3200000,
-      cleaning: 800000,
-      total: 20900000,
-      time: '6 - 8 ngày',
-      warranty: '12 tháng (1 năm)',
-      highlight: 'Xưởng sơn phòng kín tiêu chuẩn tư nhân.',
-      isRecommended: false,
-    },
-    {
-      id: 'hyundai_ngoc_phat',
-      name: 'Hyundai Ngọc Phát (Đại Lý Hãng)',
-      location: 'Amata / Long Bình, Biên Hòa',
-      sourceType: 'ESTIMATED_MARKET', // Ước tính định mức hãng
-      sourceLabel: 'Ước tính theo định mức công & sơn chính hãng',
-      paintQuote: 18500000,
-      rimQuote: 3200000,
-      fenderQuote: 3800000,
-      cleaning: 1200000,
-      total: 26700000,
-      time: '10 - 14 ngày',
-      warranty: '12 tháng (1 năm)',
-      highlight: 'Chuẩn màu sơn mã gốc Hãng, phòng sấy tiêu chuẩn Hyundai.',
-      isRecommended: false,
+  // State for editable comparison garages (loaded from localStorage if exists)
+  const [garages, setGarages] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('elantra_custom_paint_garages');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error(e);
+        }
+      }
     }
-  ]);
+    return DEFAULT_GARAGES;
+  });
 
-  const [editingGarageId, setEditingGarageId] = useState(null);
-  const [editTotalInput, setEditTotalInput] = useState('');
+  // Edit Modal / Form State for a specific garage
+  const [editingGarage, setEditingGarage] = useState(null);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+
+  // Form fields for editing/adding
+  const [formName, setFormName] = useState('');
+  const [formLocation, setFormLocation] = useState('');
+  const [formPaintQuote, setFormPaintQuote] = useState('0');
+  const [formRimQuote, setFormRimQuote] = useState('0');
+  const [formFenderQuote, setFormFenderQuote] = useState('0');
+  const [formCleaning, setFormCleaning] = useState('0');
+  const [formTime, setFormTime] = useState('5 - 7 ngày');
+  const [formWarranty, setFormWarranty] = useState('12 tháng');
+  const [formHighlight, setFormHighlight] = useState('');
+
+  // Save garages state to localStorage on changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('elantra_custom_paint_garages', JSON.stringify(garages));
+    }
+  }, [garages]);
 
   if (!isOpen) return null;
 
@@ -143,23 +177,116 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
     return selectedItems[item.id] ? sum + item.price : sum;
   }, 0);
 
-  const handleSaveEditedTotal = (garageId) => {
-    const num = parseInt(editTotalInput.replace(/\D/g, ''), 10);
-    if (!isNaN(num) && num > 0) {
+  // Parse helper
+  const parseNum = (val) => {
+    const n = parseInt(val.toString().replace(/\D/g, ''), 10);
+    return isNaN(n) ? 0 : n;
+  };
+
+  // Open Edit Modal for a garage
+  const openEditGarage = (g) => {
+    setEditingGarage(g);
+    setIsAddingNew(false);
+    setFormName(g.name);
+    setFormLocation(g.location);
+    setFormPaintQuote(g.paintQuote.toString());
+    setFormRimQuote(g.rimQuote.toString());
+    setFormFenderQuote(g.fenderQuote.toString());
+    setFormCleaning(g.cleaning.toString());
+    setFormTime(g.time);
+    setFormWarranty(g.warranty);
+    setFormHighlight(g.highlight);
+  };
+
+  // Open Add New Garage Modal
+  const openAddNewGarage = () => {
+    setEditingGarage(null);
+    setIsAddingNew(true);
+    setFormName('');
+    setFormLocation('Biên Hòa, Đồng Nai');
+    setFormPaintQuote('13000000');
+    setFormRimQuote('2000000');
+    setFormFenderQuote('3000000');
+    setFormCleaning('0');
+    setFormTime('6 - 8 ngày');
+    setFormWarranty('12 tháng');
+    setFormHighlight('Báo giá mới thu thập');
+  };
+
+  // Save Garage Changes
+  const handleSaveGarage = () => {
+    const paint = parseNum(formPaintQuote);
+    const rim = parseNum(formRimQuote);
+    const fender = parseNum(formFenderQuote);
+    const clean = parseNum(formCleaning);
+
+    if (isAddingNew) {
+      if (!formName.trim()) {
+        alert("Vui lòng nhập tên Gara!");
+        return;
+      }
+      const newG = {
+        id: 'custom-' + Date.now(),
+        name: formName.trim(),
+        location: formLocation.trim() || 'Đồng Nai',
+        sourceType: 'CUSTOM_USER',
+        sourceLabel: 'Báo giá do anh Tuấn tự nhập',
+        paintQuote: paint,
+        rimQuote: rim,
+        fenderQuote: fender,
+        cleaning: clean,
+        time: formTime.trim() || '5 - 7 ngày',
+        warranty: formWarranty.trim() || '12 tháng',
+        highlight: formHighlight.trim() || 'Báo giá thực tế mới cập nhật',
+        isRecommended: false,
+        isCustom: true,
+      };
+      setGarages(prev => [...prev, newG]);
+    } else if (editingGarage) {
       setGarages(prev => prev.map(g => {
-        if (g.id === garageId) {
+        if (g.id === editingGarage.id) {
           return {
             ...g,
-            total: num,
-            sourceLabel: 'Đã cập nhật theo báo giá anh nhập'
+            name: formName.trim() || g.name,
+            location: formLocation.trim() || g.location,
+            sourceLabel: 'Đã cập nhật theo từng hạng mục anh sửa',
+            paintQuote: paint,
+            rimQuote: rim,
+            fenderQuote: fender,
+            cleaning: clean,
+            time: formTime.trim() || g.time,
+            warranty: formWarranty.trim() || g.warranty,
+            highlight: formHighlight.trim() || g.highlight,
           };
         }
         return g;
       }));
     }
-    setEditingGarageId(null);
-    setEditTotalInput('');
+
+    setEditingGarage(null);
+    setIsAddingNew(false);
   };
+
+  // Delete a custom garage
+  const handleDeleteGarage = (id) => {
+    if (confirm("Anh có chắc muốn xóa gara này khỏi danh sách đối chiếu?")) {
+      setGarages(prev => prev.filter(g => g.id !== id));
+      setEditingGarage(null);
+    }
+  };
+
+  // Reset to default
+  const handleResetGarages = () => {
+    if (confirm("Khôi phục danh sách báo giá 3 gara ban đầu?")) {
+      setGarages(DEFAULT_GARAGES);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('elantra_custom_paint_garages');
+      }
+    }
+  };
+
+  // Calculate live total in edit form
+  const formLiveTotal = parseNum(formPaintQuote) + parseNum(formRimQuote) + parseNum(formFenderQuote) + parseNum(formCleaning);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
@@ -199,7 +326,7 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
           <div className="grid grid-cols-3 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
             {[
               { id: 'quote_anbinh', icon: '📄', title: 'Báo Giá An Bình', sub: '17.000.000 đ' },
-              { id: 'comparison', icon: '⚖️', title: 'So Sánh 3 Gara', sub: 'Đối chiếu giá' },
+              { id: 'comparison', icon: '⚖️', title: `So Sánh (${garages.length} Gara)`, sub: 'Tự sửa từng món' },
               { id: 'original_doc', icon: '🖼️', title: 'Ảnh Phiếu Gốc', sub: 'Xem phiếu giấy' }
             ].map(tab => (
               <button
@@ -383,133 +510,119 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
             </div>
           )}
 
-          {/* TAB 2: SO SÁNH ĐỐI CHIẾU 3 GARA */}
+          {/* TAB 2: SO SÁNH ĐỐI CHIẾU CÁC GARA (TỰ SỬA TỪNG HẠNG MỤC) */}
           {activeTab === 'comparison' && (
             <div className="space-y-4 animate-fadeIn">
-              {/* Explanation Note on Data Sources */}
-              <div className="p-4 bg-cyan-950/40 border border-cyan-800/60 rounded-2xl text-xs sm:text-sm text-cyan-200 space-y-1">
-                <div className="font-bold text-cyan-300 flex items-center gap-2">
-                  <Info className="w-4 h-4 text-cyan-400 shrink-0" />
-                  Nguồn gốc số liệu bảng đối chiếu:
+              {/* Action Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 bg-slate-950 rounded-2xl border border-slate-800">
+                <div className="text-xs sm:text-sm text-slate-300">
+                  <span>💡 Bấm nút </span>
+                  <span className="text-cyan-300 font-bold">"Sửa từng món ✏️"</span>
+                  <span> trên mỗi gara để nhập giá từng phụ tùng, app sẽ tự cộng tổng!</span>
                 </div>
-                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                  • <b>Gara Ô Tô An Bình:</b> Lấy chính xác 100% từ phiếu báo giá giấy của xưởng (17.000.000 đ).<br />
-                  • <b>1Car Gara & Hyundai Ngọc Phát:</b> Là giá ước tính tham khảo theo mặt bằng chung thị trường Biên Hòa & định mức giờ công hãng. Anh có thể bấm nút <b>"Chỉnh sửa"</b> bên dưới để nhập số tiền thực tế nếu anh hỏi giá thêm từ các gara khác nhé!
-                </p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={openAddNewGarage}
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Thêm Gara Mới</span>
+                  </button>
+                  <button
+                    onClick={handleResetGarages}
+                    title="Khôi phục mặc định"
+                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* 3 Garages Cards */}
+              {/* Garages Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                {garages.map((g) => (
-                  <div
-                    key={g.id}
-                    className={`rounded-2xl p-4 sm:p-5 border flex flex-col justify-between space-y-3.5 transition-all ${
-                      g.isRecommended
-                        ? 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-rose-500/60 shadow-xl shadow-rose-500/10 ring-1 ring-rose-500/40'
-                        : 'bg-slate-950/70 border-slate-800'
-                    }`}
-                  >
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                          g.isRecommended
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                            : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          {g.isRecommended ? '⭐ BÁO GIÁ THỰC TẾ' : 'GIÁ THAM KHẢO'}
-                        </span>
-                        <span className="text-xs text-slate-300 font-mono">{g.time}</span>
+                {garages.map((g) => {
+                  const gTotal = g.paintQuote + g.rimQuote + g.fenderQuote + g.cleaning;
+
+                  return (
+                    <div
+                      key={g.id}
+                      className={`rounded-2xl p-4 sm:p-5 border flex flex-col justify-between space-y-3.5 transition-all ${
+                        g.isRecommended
+                          ? 'bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-rose-500/60 shadow-xl shadow-rose-500/10 ring-1 ring-rose-500/40'
+                          : 'bg-slate-950/70 border-slate-800'
+                      }`}
+                    >
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                            g.isRecommended
+                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                              : g.isCustom
+                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                                : 'bg-slate-800 text-slate-300'
+                          }`}>
+                            {g.isRecommended ? '⭐ BÁO GIÁ THỰC TẾ' : g.isCustom ? 'ANH TỰ THÊM' : 'GIÁ THAM KHẢO'}
+                          </span>
+                          <span className="text-xs text-slate-300 font-mono">{g.time}</span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-base font-bold text-white">{g.name}</h4>
+                          <p className="text-xs text-slate-400 mt-0.5">{g.location}</p>
+                          <p className="text-[11px] text-cyan-300 font-mono mt-1">{g.sourceLabel}</p>
+                        </div>
+
+                        {/* Breakdown items */}
+                        <div className="pt-2.5 border-t border-slate-800 space-y-2 text-xs sm:text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">1. Sơn quây xe:</span>
+                            <span className="font-mono font-semibold text-slate-100">{formatCurrency(g.paintQuote)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">2. Sơn 4 mâm:</span>
+                            <span className="font-mono font-semibold text-slate-100">{formatCurrency(g.rimQuote)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">3. Lòng vè ONZCA:</span>
+                            <span className="font-mono font-semibold text-slate-100">{formatCurrency(g.fenderQuote)}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">4. Dọn nội thất:</span>
+                            <span className={`font-mono font-semibold ${g.cleaning === 0 ? 'text-emerald-400 font-bold' : 'text-slate-100'}`}>
+                              {g.cleaning === 0 ? 'Miễn phí (0 đ)' : formatCurrency(g.cleaning)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between pt-1.5 border-t border-slate-800 text-xs sm:text-sm">
+                            <span className="text-slate-400 font-medium">Bảo hành sơn:</span>
+                            <span className="font-bold text-emerald-400">{g.warranty}</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div>
-                        <h4 className="text-base font-bold text-white">{g.name}</h4>
-                        <p className="text-xs text-slate-400 mt-0.5">{g.location}</p>
-                        <p className="text-[11px] text-cyan-300 font-mono mt-1">{g.sourceLabel}</p>
-                      </div>
-
-                      <div className="pt-2.5 border-t border-slate-800 space-y-2 text-xs sm:text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Sơn quây xe:</span>
-                          <span className="font-mono font-semibold text-slate-200">{formatCurrency(g.paintQuote)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Sơn 4 mâm:</span>
-                          <span className="font-mono font-semibold text-slate-200">{formatCurrency(g.rimQuote)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Hóa nhựa lòng vè:</span>
-                          <span className="font-mono font-semibold text-slate-200">{formatCurrency(g.fenderQuote)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Dọn nội thất:</span>
-                          <span className={`font-mono font-semibold ${g.cleaning === 0 ? 'text-emerald-400 font-bold' : 'text-slate-200'}`}>
-                            {g.cleaning === 0 ? 'Miễn phí' : formatCurrency(g.cleaning)}
+                      {/* Total and Action Button */}
+                      <div className="pt-3 border-t border-slate-800 space-y-2">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-slate-400">TỔNG TỰ TÍNH:</span>
+                          <span className={`text-lg sm:text-xl font-mono font-extrabold ${g.isRecommended ? 'text-rose-400' : 'text-white'}`}>
+                            {formatCurrency(gTotal)}
                           </span>
                         </div>
-                        <div className="flex justify-between pt-1.5 border-t border-slate-800 text-xs sm:text-sm">
-                          <span className="text-slate-400 font-medium">Bảo hành sơn:</span>
-                          <span className="font-bold text-emerald-400">{g.warranty}</span>
-                        </div>
+
+                        <p className="text-xs text-slate-400 leading-snug">
+                          {g.highlight}
+                        </p>
+
+                        <button
+                          onClick={() => openEditGarage(g)}
+                          className="w-full py-2 px-3 rounded-xl bg-slate-850 hover:bg-slate-800 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Sửa chi tiết từng món & bảo hành</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="pt-3 border-t border-slate-800">
-                      {editingGarageId === g.id ? (
-                        <div className="space-y-2">
-                          <span className="text-xs text-slate-300 block font-medium">Nhập tổng tiền báo giá mới:</span>
-                          <div className="flex items-center gap-1.5">
-                            <input
-                              type="text"
-                              value={editTotalInput}
-                              onChange={(e) => setEditTotalInput(e.target.value)}
-                              placeholder="Ví dụ: 19000000"
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-cyan-500 text-white text-xs font-mono"
-                              autoFocus
-                            />
-                            <button
-                              onClick={() => handleSaveEditedTotal(g.id)}
-                              className="px-2.5 py-1.5 rounded-lg bg-cyan-600 text-white text-xs font-bold"
-                            >
-                              Lưu
-                            </button>
-                            <button
-                              onClick={() => setEditingGarageId(null)}
-                              className="px-2 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs"
-                            >
-                              Hủy
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="flex items-baseline justify-between mb-1">
-                            <span className="text-xs text-slate-400">Tổng chi phí:</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-lg sm:text-xl font-mono font-extrabold ${g.isRecommended ? 'text-rose-400' : 'text-slate-100'}`}>
-                                {formatCurrency(g.total)}
-                              </span>
-                              {!g.isRecommended && (
-                                <button
-                                  onClick={() => {
-                                    setEditingGarageId(g.id);
-                                    setEditTotalInput(g.total.toString());
-                                  }}
-                                  className="p-1 text-slate-400 hover:text-cyan-300 transition-colors"
-                                  title="Chỉnh sửa số tiền theo báo giá mới của anh"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-xs text-slate-400 leading-snug mt-1">
-                            {g.highlight}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Economic conclusion */}
@@ -557,7 +670,7 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
         {/* Modal Footer */}
         <div className="p-3.5 sm:p-4 border-t border-slate-800 bg-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-xs sm:text-sm text-slate-300">
-            Dự kiến: <b className="text-white font-mono text-sm sm:text-base">{formatCurrency(calculatedTotal)}</b> • Sơn quây đỏ camay & mâm & lòng vè
+            Dự kiến An Bình: <b className="text-white font-mono text-sm sm:text-base">{formatCurrency(calculatedTotal)}</b> • Sơn quây đỏ camay & mâm & lòng vè
           </div>
 
           <div className="flex items-center gap-2">
@@ -578,6 +691,191 @@ export default function BodyPaintQuoteModal({ isOpen, onClose, vehicle }) {
         </div>
 
       </div>
+
+      {/* POPUP SUB-MODAL: CHỈNH SỬA CHI TIẾT TỪNG HẠNG MỤC CỦA GARA */}
+      {(editingGarage || isAddingNew) && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-3 bg-black/90 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            {/* Header */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+              <div className="flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-base font-bold text-white">
+                  {isAddingNew ? 'Thêm Báo Giá Gara Mới' : `Sửa Chi Tiết: ${formName}`}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingGarage(null);
+                  setIsAddingNew(false);
+                }}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form Inputs */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 text-xs sm:text-sm">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Tên Gara / Xưởng:</label>
+                <input
+                  type="text"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="Ví dụ: Gara AutoCare Tam Hiệp"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-cyan-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Địa chỉ / Khu vực:</label>
+                <input
+                  type="text"
+                  value={formLocation}
+                  onChange={(e) => setFormLocation(e.target.value)}
+                  placeholder="Ví dụ: Long Thành, Đồng Nai"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-cyan-500 outline-none"
+                />
+              </div>
+
+              <div className="p-3 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 block">
+                  Giá từng phụ tùng & công thợ (VNĐ):
+                </span>
+
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">1. Đồng - Sơn quây nguyên xe:</label>
+                  <input
+                    type="number"
+                    step="500000"
+                    value={formPaintQuote}
+                    onChange={(e) => setFormPaintQuote(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-bold focus:border-cyan-500 outline-none text-sm"
+                  />
+                  <span className="text-[11px] text-slate-400 mt-0.5 block font-mono">
+                    = {formatCurrency(parseNum(formPaintQuote))}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">2. Sơn 4 mâm xe:</label>
+                  <input
+                    type="number"
+                    step="100000"
+                    value={formRimQuote}
+                    onChange={(e) => setFormRimQuote(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-bold focus:border-cyan-500 outline-none text-sm"
+                  />
+                  <span className="text-[11px] text-slate-400 mt-0.5 block font-mono">
+                    = {formatCurrency(parseNum(formRimQuote))}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">3. Hóa nhựa lòng vè ONZCA:</label>
+                  <input
+                    type="number"
+                    step="100000"
+                    value={formFenderQuote}
+                    onChange={(e) => setFormFenderQuote(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-bold focus:border-cyan-500 outline-none text-sm"
+                  />
+                  <span className="text-[11px] text-slate-400 mt-0.5 block font-mono">
+                    = {formatCurrency(parseNum(formFenderQuote))}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">4. Dọn vệ sinh nội thất (nhập 0 nếu tặng kèm):</label>
+                  <input
+                    type="number"
+                    step="100000"
+                    value={formCleaning}
+                    onChange={(e) => setFormCleaning(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-bold focus:border-cyan-500 outline-none text-sm"
+                  />
+                  <span className="text-[11px] text-slate-400 mt-0.5 block font-mono">
+                    = {parseNum(formCleaning) === 0 ? 'Miễn phí (0 đ)' : formatCurrency(parseNum(formCleaning))}
+                  </span>
+                </div>
+              </div>
+
+              {/* Extra Info */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">Bảo hành sơn:</label>
+                  <input
+                    type="text"
+                    value={formWarranty}
+                    onChange={(e) => setFormWarranty(e.target.value)}
+                    placeholder="12 tháng / 24 tháng"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 text-xs mb-1">Thời gian làm:</label>
+                  <input
+                    type="text"
+                    value={formTime}
+                    onChange={(e) => setFormTime(e.target.value)}
+                    placeholder="6 - 8 ngày"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Live Auto-Calculated Total */}
+              <div className="p-3.5 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 rounded-2xl border border-cyan-500/40 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-slate-300 block">TỔNG TIỀN TỰ ĐỘNG TÍNH:</span>
+                  <span className="text-xl font-mono font-black text-cyan-300">
+                    {formatCurrency(formLiveTotal)}
+                  </span>
+                </div>
+                <span className="text-xs text-emerald-400 font-semibold">Tự động cộng dồn</span>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between gap-2">
+              <div>
+                {editingGarage && editingGarage.isCustom && (
+                  <button
+                    onClick={() => handleDeleteGarage(editingGarage.id)}
+                    className="px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Xóa</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setEditingGarage(null);
+                    setIsAddingNew(false);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleSaveGarage}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-cyan-500/20"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Lưu Báo Giá</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
