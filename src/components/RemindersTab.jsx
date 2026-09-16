@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { BellRing, Plus, Wrench, Shield, CheckCircle2, AlertTriangle, Clock, Calendar, Droplets } from 'lucide-react';
 import { formatKm, calculateReminderStatus } from '../services/vehicleService';
 import NextServiceEstimatorCard from './NextServiceEstimatorCard';
