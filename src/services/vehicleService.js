@@ -8,11 +8,11 @@ import {
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 
 const STORAGE_KEYS = {
-  VEHICLE: 'elantra_app_vehicle_v2',
-  SERVICE_LOGS: 'elantra_app_services_v2',
-  FUEL_LOGS: 'elantra_app_fuel_v2',
-  EXPENSES: 'elantra_app_expenses_v2',
-  REMINDERS: 'elantra_app_reminders_v2',
+  VEHICLE: 'elantra_app_vehicle_v3',
+  SERVICE_LOGS: 'elantra_app_services_v3',
+  FUEL_LOGS: 'elantra_app_fuel_v3',
+  EXPENSES: 'elantra_app_expenses_v3',
+  REMINDERS: 'elantra_app_reminders_v3',
 };
 
 const safeGetStorage = (key) => {

@@ -28,7 +28,7 @@ export const INITIAL_VEHICLE = {
   tire_spec: '195/65R15',
   curb_weight: '1.200 kg',
   gross_weight: '1.750 kg',
-  current_odo: 65023,
+  current_odo: 65030,
   fuel_capacity: 47.0, // Lít
   fuel_type: 'RON 95-III',
   photo_url: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1000&q=80',
