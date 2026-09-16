@@ -14,6 +14,7 @@ import TripCostCalculatorModal from './components/TripCostCalculatorModal';
 import VETCWalletModal from './components/VETCWalletModal';
 import PhatNguoiLookupModal from './components/PhatNguoiLookupModal';
 import SmartVehicleQRModal from './components/SmartVehicleQRModal';
+import BodyPaintQuoteModal from './components/BodyPaintQuoteModal';
 import { vehicleService, calculateReminderStatus } from './services/vehicleService';
 import { 
   INITIAL_VEHICLE, 
@@ -34,6 +35,7 @@ export default function App() {
   const [isVetcOpen, setIsVetcOpen] = useState(false);
   const [isPhatNguoiOpen, setIsPhatNguoiOpen] = useState(false);
   const [isSmartQrOpen, setIsSmartQrOpen] = useState(false);
+  const [isBodyPaintQuoteOpen, setIsBodyPaintQuoteOpen] = useState(false);
   const [quickAddInitialMode, setQuickAddInitialMode] = useState('fuel');
   const [quickAddServiceData, setQuickAddServiceData] = useState(null);
 
@@ -196,6 +198,7 @@ export default function App() {
             onOpenVETC={() => setIsVetcOpen(true)}
             onOpenPhatNguoi={() => setIsPhatNguoiOpen(true)}
             onOpenSmartQR={() => setIsSmartQrOpen(true)}
+            onOpenBodyPaintQuote={() => setIsBodyPaintQuoteOpen(true)}
           />
         )}
 
@@ -332,6 +335,13 @@ export default function App() {
       <SmartVehicleQRModal
         isOpen={isSmartQrOpen}
         onClose={() => setIsSmartQrOpen(false)}
+        vehicle={vehicle}
+      />
+
+      {/* Body & Paint Multi-Garage Quotation Modal */}
+      <BodyPaintQuoteModal
+        isOpen={isBodyPaintQuoteOpen}
+        onClose={() => setIsBodyPaintQuoteOpen(false)}
         vehicle={vehicle}
       />
     </div>

@@ -40,7 +40,7 @@ export default function Header({ vehicle, onReset, onOpenExport, activeAlertsCou
               </span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-slate-400">
-              <span className="text-cyan-300 font-medium">Anh Tuấn</span>
+              <span className="text-cyan-300 font-medium">Tuấn Phạm</span>
               <span>•</span>
               <span className="text-slate-300 font-medium font-mono">ODO: {formatKm(vehicle.current_odo)}</span>
               <span>•</span>

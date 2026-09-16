@@ -35,8 +35,19 @@ import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
 import DigitalGloveboxModal from './DigitalGloveboxModal';
 import SOSToolkitModal from './SOSToolkitModal';
 import PartsLifecycleCard from './PartsLifecycleCard';
+import BodyPaintQuoteModal from './BodyPaintQuoteModal';
 
 export const REAL_GARAGE_ROADMAP = [
+  {
+    date: '2026-09-16',
+    time: '15:30',
+    type: 'QUOTE',
+    title: 'Báo giá Đồng - Sơn quây nguyên xe (đỏ camay) & Sơn mâm & Hóa nhựa lòng vè ONZCA',
+    garage: 'CÔNG TY TNHH TM DV Ô TÔ AN BÌNH (Biên Hòa)',
+    status: 'QUOTATION',
+    isPaintQuote: true,
+    note: 'Báo giá 17.000.000 đ (Sơn quây đỏ camay 12tr + Sơn 4 mâm 2tr + Hóa nhựa lòng vè ONZCA 3tr + Tặng dọn nội thất chuyên sâu). Bảo hành sơn 24 tháng. Hotline: 0985 074 112.'
+  },
   {
     date: '2022-12-07',
     time: '09:50',
@@ -200,6 +211,7 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
   const [editProvider, setEditProvider] = useState('');
   const [isGloveboxOpen, setIsGloveboxOpen] = useState(false);
   const [isSosOpen, setIsSosOpen] = useState(false);
+  const [isBodyPaintQuoteOpen, setIsBodyPaintQuoteOpen] = useState(false);
 
   // Notification Channels State
   const [pushStatus, setPushStatus] = useState(
@@ -529,7 +541,103 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
       {/* 2. THEO DÕI VỎ XE KENDA & VÒNG ĐỜI PHỤ TÙNG HAO MÒN */}
       <PartsLifecycleCard currentOdo={vehicle?.current_odo || 65030} />
 
-      {/* 2. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
+      {/* 2.5. DỰ TOÁN & ĐỐI CHIẾU BÁO GIÁ SƠN QUÂY THÂN VỎ, MÂM, LÒNG VÈ */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-rose-950/25 to-slate-950 border border-rose-500/40 shadow-2xl relative overflow-hidden space-y-4">
+        {/* Background ambient glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+
+        {/* Top Header */}
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0">
+              <Wrench className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                  Dự Toán Sơn Thân Vỏ, Mâm & Lòng Vè Xe
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                  Báo giá Ô Tô An Bình
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Đối chiếu giá 3 Gara • Sơn quây đỏ camay • Sơn 4 mâm • Hóa nhựa lòng vè ONZCA
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsBodyPaintQuoteOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20 transition-all active:scale-95 shrink-0"
+          >
+            <span>⚖️ Bảng So Sánh & Phiếu Báo Giá Gốc</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Quick Highlights Grid */}
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div 
+            onClick={() => setIsBodyPaintQuoteOpen(true)}
+            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+          >
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">1. Sơn Quây Nguyên Xe</span>
+            <span className="text-sm font-bold text-slate-100 font-mono">12.000.000 đ</span>
+            <span className="text-[10px] text-rose-300 block">Đỏ camay sâu bóng</span>
+          </div>
+
+          <div 
+            onClick={() => setIsBodyPaintQuoteOpen(true)}
+            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+          >
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">2. Sơn 4 Mâm Xe</span>
+            <span className="text-sm font-bold text-slate-100 font-mono">2.000.000 đ</span>
+            <span className="text-[10px] text-slate-400 block">500.000 đ / cái</span>
+          </div>
+
+          <div 
+            onClick={() => setIsBodyPaintQuoteOpen(true)}
+            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+          >
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">3. Lòng Vè Sau ONZCA</span>
+            <span className="text-sm font-bold text-slate-100 font-mono">3.000.000 đ</span>
+            <span className="text-[10px] text-cyan-300 block">Hóa nhựa gốc nước</span>
+          </div>
+
+          <div 
+            onClick={() => setIsBodyPaintQuoteOpen(true)}
+            className="p-3 bg-slate-950/70 hover:bg-slate-900/80 border border-slate-800 rounded-2xl cursor-pointer transition-all space-y-0.5"
+          >
+            <span className="text-[10px] text-slate-400 uppercase font-semibold block">4. Dọn Nội Thất</span>
+            <span className="text-sm font-bold text-emerald-400 font-mono">TẶNG KÈM (0 đ)</span>
+            <span className="text-[10px] text-emerald-300 block">Khử mùi diệt khuẩn</span>
+          </div>
+        </div>
+
+        {/* Summary Footer Bar */}
+        <div className="relative z-10 p-3.5 bg-slate-950/90 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-xs">
+            <span className="text-slate-400">Tổng gói An Bình: </span>
+            <strong className="text-base font-mono text-rose-400 font-extrabold">17.000.000 đ</strong>
+            <span className="text-[11px] text-slate-400"> (Tiết kiệm ~9.7tr so với Hãng 26.7tr)</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> Bảo hành sơn 24 tháng
+            </span>
+            <button
+              onClick={() => setIsBodyPaintQuoteOpen(true)}
+              className="text-xs text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2 ml-1"
+            >
+              Mở đối chiếu »
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. THỜI HẠN BẢO HIỂM, ĐĂNG KIỂM & PHÁP LÝ (LEGAL & INSURANCE TRACKER) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -979,6 +1087,18 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
                     <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                       {item.note}
                     </p>
+
+                    {(isQuote || item.isPaintQuote) && (
+                      <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                        <button
+                          onClick={() => setIsBodyPaintQuoteOpen(true)}
+                          className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <Wrench className="w-3.5 h-3.5" />
+                          <span>Mở Bảng Báo Giá Sơn & Đối Chiếu Gara</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -998,6 +1118,13 @@ export default function VehicleProfileTab({ vehicle, onOpenQuickAdd }) {
       <SOSToolkitModal 
         isOpen={isSosOpen} 
         onClose={() => setIsSosOpen(false)} 
+      />
+
+      {/* Body & Paint Multi-Garage Quotation Modal */}
+      <BodyPaintQuoteModal
+        isOpen={isBodyPaintQuoteOpen}
+        onClose={() => setIsBodyPaintQuoteOpen(false)}
+        vehicle={vehicle}
       />
     </div>
   );

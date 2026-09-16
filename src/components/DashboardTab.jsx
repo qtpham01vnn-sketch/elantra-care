@@ -43,7 +43,8 @@ export default function DashboardTab({
   onOpenTripCalc,
   onOpenVETC,
   onOpenPhatNguoi,
-  onOpenSmartQR
+  onOpenSmartQR,
+  onOpenBodyPaintQuote
 }) {
   // Tính toán KPI Tổng hợp
   const totalFuelCost = fuelLogs.reduce((acc, f) => acc + (f.total_cost || 0), 0);
@@ -346,6 +347,27 @@ export default function DashboardTab({
           </h4>
           <p className="text-[10px] text-slate-400 mt-0.5 truncate">
             TP.HCM, VT, Phan Thiết
+          </p>
+        </button>
+
+        {/* Shortcut 7: Body & Paint Quotation (Ô Tô An Bình) */}
+        <button
+          onClick={onOpenBodyPaintQuote}
+          className="p-3 rounded-2xl bg-gradient-to-br from-rose-950/60 to-slate-900 border border-rose-800/60 hover:border-rose-500/80 text-left transition-all group shadow-md active:scale-95 col-span-2 sm:col-span-1"
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Wrench className="w-3.5 h-3.5 text-rose-400" />
+            </span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 font-mono">
+              17 TR
+            </span>
+          </div>
+          <h4 className="text-xs font-bold text-slate-100 group-hover:text-rose-300 transition-colors">
+            Sơn Quây & Mâm Xe
+          </h4>
+          <p className="text-[10px] text-rose-300 font-medium mt-0.5 truncate">
+            Gara An Bình (BH 24T)
           </p>
         </button>
       </div>
