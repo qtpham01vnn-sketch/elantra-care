@@ -28,7 +28,8 @@ import {
   UserCheck,
   Gauge,
   Layers,
-  Award
+  Award,
+  ChevronRight
 } from 'lucide-react';
 import { formatCurrency, formatKm } from '../services/vehicleService';
 import { INITIAL_LEGAL_DOCUMENTS } from '../data/mockData';
